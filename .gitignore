@@ -1,0 +1,14 @@
+.idea
+.vscode
+*/bin/
+*/tmp/
+go.work*
+env.*
+
+# ignore common/shared files
+main-cmdline.go
+main-lambda-sqs.go
+s3.go
+
+# dont ignore common directory
+!lambda-common/*.go

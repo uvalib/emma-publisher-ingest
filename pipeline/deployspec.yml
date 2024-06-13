@@ -1,0 +1,34 @@
+#
+# deployspec.yml
+#
+
+version: 0.2
+
+env:
+  variables:
+    deploy_bucket: emma-bibliovault-ingest-deploy
+
+phases:
+  install:
+    runtime-versions:
+      golang: 1.x
+#    commands:
+
+#  pre_build:
+#    commands:
+
+  build:
+    commands:
+      #
+      # bibliovault-ingest function
+      #- aws lambda update-function-code --function-name uva-bibliovault-ingest-staging --s3-bucket ${deploy_bucket} --s3-key latest/bibliovault-ingest/deployment.zip
+      #
+      # bibliovault-validate function
+      - aws lambda update-function-code --function-name uva-bibliovault-validate-staging --s3-bucket ${deploy_bucket} --s3-key latest/bibliovault-validate/deployment.zip
+
+#  post_build:
+#    commands:
+
+#
+# end of file
+#
