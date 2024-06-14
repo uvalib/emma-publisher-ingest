@@ -9,6 +9,7 @@ env.*
 main-cmdline.go
 main-lambda-sqs.go
 s3.go
+sqs.go
 
 # dont ignore common directory
 !lambda-common/*.go
