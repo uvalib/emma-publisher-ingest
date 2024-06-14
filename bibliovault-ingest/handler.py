@@ -5,11 +5,10 @@
 def lambda_handler(event, context):
 
 	if event:
+		print( "EVENT: [" + event + "]\n" )
 
-		for record in event["Records"]:
-			print( record )
-
-	return nil
+	# all is well
+	return None
 
 #
 # end of file
