@@ -12,6 +12,7 @@ deployable:
 	mkdir $(DEPLOYDIR)
 	$(PIPBIN) install --target $(DEPLOYDIR) boto3
 	cp handler.py $(DEPLOYDIR)
+	cp process.py $(DEPLOYDIR)
 	cd $(DEPLOYDIR); zip -r deployment.zip *
 
 clean:

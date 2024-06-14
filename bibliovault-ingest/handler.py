@@ -2,10 +2,12 @@
 #
 #
 
+from process import *
+
 def lambda_handler(event, context):
 
 	if event:
-		print( "EVENT: [" + str(event) + "]\n" )
+		return process( event["bucket"], event["key"])
 
 	# all is well
 	return None
