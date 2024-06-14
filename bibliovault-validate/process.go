@@ -8,9 +8,9 @@ import (
 	"fmt"
 )
 
-func process(messageSrc string, bucket string, key string) error {
+func process(messageId string, messageSrc string, bucket string, key string) error {
 
-	fmt.Printf("EVENT from:%s -> %s/%s\n", messageSrc, bucket, key)
+	fmt.Printf("EVENT %s from:%s -> %s/%s\n", messageId, messageSrc, bucket, key)
 
 	// load configuration
 	//cfg, err := loadConfiguration()

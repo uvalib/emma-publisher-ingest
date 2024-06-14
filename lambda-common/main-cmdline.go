@@ -16,11 +16,12 @@ import (
 func main() {
 
 	//var messageId string
+	var messageId string
 	var source string
 	var bucket string
 	var key string
 
-	//flag.StringVar(&messageId, "messageid", "0-0-0-0", "Message identifier")
+	flag.StringVar(&messageId, "messageid", "0-0-0-0", "Message identifier")
 	flag.StringVar(&source, "source", "the.source", "Message source")
 	flag.StringVar(&bucket, "bucket", "", "Bucket name")
 	flag.StringVar(&key, "key", "", "Key name")
@@ -31,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := process(source, bucket, key)
+	err := process(messageId, source, bucket, key)
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err.Error())
 		os.Exit(1)
