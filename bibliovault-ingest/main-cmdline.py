@@ -5,7 +5,11 @@
 from handler import *
 
 def main():
-	event = 'bla bla bla'
+        # events are dictionaries
+	event = {
+		"id": "123456",
+		"year": 2024
+	}
 	context = None
 	err = lambda_handler(event, context)
 

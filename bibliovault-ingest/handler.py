@@ -5,7 +5,7 @@
 def lambda_handler(event, context):
 
 	if event:
-		print( "EVENT: [" + event + "]\n" )
+		print( "EVENT: [" + str(event) + "]\n" )
 
 	# all is well
 	return None
