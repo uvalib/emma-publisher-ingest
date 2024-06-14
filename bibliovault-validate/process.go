@@ -5,13 +5,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
-func process(messageId string, messageSrc string, rawMsg json.RawMessage) error {
+func process(messageSrc string, bucket string, key string) error {
 
-	fmt.Printf("EVENT %s from:%s -> %s\n", messageId, messageSrc, rawMsg)
+	fmt.Printf("EVENT from:%s -> %s/%s\n", messageSrc, bucket, key)
 
 	// load configuration
 	//cfg, err := loadConfiguration()

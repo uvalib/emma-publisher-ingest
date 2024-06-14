@@ -15,25 +15,27 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func HandleRequest(ctx context.Context, sqsEvent events.SQSEvent) error {
+func HandleRequest(ctx context.Context, event events.S3Event) error {
 
 	var returnErr error
 
 	// loop through possible messages
-	for _, message := range sqsEvent.Records {
-		// convert to an eventbus event
-		var mbEvent events.EventBridgeEvent
-		err := json.Unmarshal([]byte(message.Body), &mbEvent)
+	for _, message := range event.Records {
+		// convert to an S3 event
+		var s3Event events.S3EventRecord
+		err := json.Unmarshal([]byte(message.Body), &s3Event)
 		if err != nil {
-			fmt.Printf("ERROR: unmarshaling event bridge event (%s), continuing\n", err.Error())
+			fmt.Printf("ERROR: unmarshaling S3 event (%s), continuing\n", err.Error())
 			returnErr = err
 			continue
 		}
 
 		// process the message, in the event of an error, it is re-queued
-		err = process(mbEvent.ID, mbEvent.Source, mbEvent.Detail)
+		bucket := s3Event.S3.Bucket.Name
+		key := s3Event.S3.Object.Key
+		err = process(s3Event.Source, bucket, key)
 		if err != nil {
-			fmt.Printf("ERROR: processing event bridge event (%s), continuing\n", err.Error())
+			fmt.Printf("ERROR: processing S3 event (%s), continuing\n", err.Error())
 			returnErr = err
 		}
 	}
