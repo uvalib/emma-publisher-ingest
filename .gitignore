@@ -1,6 +1,7 @@
 .idea
 .vscode
 */bin/
+*/package/
 */tmp/
 go.work*
 env.*

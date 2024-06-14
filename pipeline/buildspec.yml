@@ -12,6 +12,7 @@ phases:
   install:
     runtime-versions:
       golang: 1.x
+      python: 3.x
 #    commands:
 
   pre_build:
@@ -24,8 +25,8 @@ phases:
       #
       # build the assets
       #
-      #- cd ${CODEBUILD_SRC_DIR}/bibliovault-ingest
-      #- make linux
+      - cd ${CODEBUILD_SRC_DIR}/bibliovault-ingest
+      - make linux
       - cd ${CODEBUILD_SRC_DIR}/bibliovault-validate
       - make linux
       #
@@ -33,7 +34,7 @@ phases:
       #
       #
       # bibliovault-ingest function
-      #- aws s3 cp ${CODEBUILD_SRC_DIR}/bibliovault-ingest/bin/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/bibliovault-ingest/deployment.zip --quiet
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/bibliovault-ingest/package/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/bibliovault-ingest/deployment.zip --quiet
       #
       # bibliovault-validate function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/bibliovault-validate/bin/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/bibliovault-validate/deployment.zip --quiet
