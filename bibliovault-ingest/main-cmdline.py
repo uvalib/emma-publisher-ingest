@@ -3,6 +3,7 @@
 #
 
 import argparse
+import json
 
 from handler import *
 
@@ -12,13 +13,16 @@ def main():
 	parser.add_argument('--key', dest='key', type=str, help='Key name')
 	args = parser.parse_args()
 
-        # events are dictionaries
-	event = {
-		"bucket": args.bucket,
-		"key": args.key
+	# payload is an array of records containing the body sent to the queue
+	payload = {
+		"Records": [
+			{ "body": {"bucket": args.bucket, "key": args.key}}
+		]
 	}
 
-	err = lambda_handler(event, None)
+	# convert to json and process
+	asjson = json.dumps(payload)
+	err = lambda_handler(asjson, None)
 
 if __name__ == "__main__":
     main()
