@@ -3,7 +3,6 @@
 #
 
 import argparse
-import json
 
 from handler import *
 
@@ -20,9 +19,8 @@ def main():
 		]
 	}
 
-	# convert to json and process
-	asjson = json.dumps(payload)
-	err = lambda_handler(asjson, None)
+	# process
+	err = lambda_handler(payload, None)
 
 if __name__ == "__main__":
     main()
