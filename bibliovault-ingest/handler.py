@@ -6,17 +6,20 @@ from process import *
 
 def lambda_handler(event, context):
 
+	# return status
+	ret = None
+
 	if event:
 		print( "RECV [" + str(event) + "]\n" )
 
 		for record in event["Records"]:
 			# extract the record and process
-			body = record["body"]
-			print( "REC: " + body["bucket"] + "/" + body["key"] + "\n")
-		#return process( body["bucket"], body["key"])
+			body = eval(record["body"])
+			val = process( body["bucket"], body["key"])
+			if val:
+				ret = val
 
-	# all is well
-	return None
+	return ret
 
 #
 # end of file

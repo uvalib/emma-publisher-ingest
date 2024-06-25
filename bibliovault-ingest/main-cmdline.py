@@ -13,9 +13,13 @@ def main():
 	args = parser.parse_args()
 
 	# payload is an array of records containing the body sent to the queue
+	body = {
+		"bucket": args.bucket,
+		"key": args.key,
+	}
 	payload = {
 		"Records": [
-			{ "body": {"bucket": args.bucket, "key": args.key}}
+			{ "body": str(body) }
 		]
 	}
 
