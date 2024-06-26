@@ -27,9 +27,14 @@ func main() {
 	flag.StringVar(&key, "key", "", "Key name")
 	flag.Parse()
 
-	if len(bucket) == 0 || len(key) == 0 {
+	if len(key) == 0 {
 		fmt.Printf("ERROR: incorrect commandline, use --help for details\n")
 		os.Exit(1)
+	}
+
+	if len(bucket) == 0 {
+		fmt.Printf("INFO: Bucket is blank. Now looking for a local file with key name.\n")
+
 	}
 
 	err := process(messageId, source, bucket, key)

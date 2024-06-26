@@ -8,10 +8,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"io"
 )
 
 func newS3Client() (*s3.Client, error) {
@@ -56,6 +57,21 @@ func putS3(client *s3.Client, bucket string, key string, buffer []byte) error {
 	}
 
 	return nil
+}
+
+func headS3(client *s3.Client, bucket string, key string) (*s3.HeadObjectOutput, error) {
+
+	fmt.Printf("DEBUG: getting s3 attributes s3://%s/%s\n", bucket, key)
+
+	head, err := client.HeadObject(context.TODO(), &s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return head, nil
 }
 
 //

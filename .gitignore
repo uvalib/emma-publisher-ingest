@@ -5,6 +5,7 @@
 */tmp/
 go.work*
 env.*
+.DS_Store
 
 # ignore common/shared files
 main-cmdline.go
