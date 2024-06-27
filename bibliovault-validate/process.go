@@ -81,7 +81,7 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 		filename := fmt.Sprintf("%s.epub", id)
 
 		if fileHead, err := headS3(s3, bucket, filename); err == nil {
-			fmt.Printf("Found %+v \n", fileHead)
+			fmt.Printf("INFO: found %+v \n", fileHead)
 
 		} else {
 			fmt.Printf("ERROR: %s/%s - %s\n", bucket, filename, err.Error())
@@ -90,14 +90,14 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 
 		fmt.Printf("%d: %s\n", i, id)
 	}
-	fmt.Printf("Processed %d records\n", len(idList))
+	fmt.Printf("INFO: processed %d records\n", len(idList))
 
 	if errorCount > 0 {
 		return fmt.Errorf("%d files are missing. Not continuing with ingest", errorCount)
 	}
 
 	// upload notification to the outbound queue
-	fmt.Printf("Validation complete. Sending notification to %s", cfg.OutQueue)
+	fmt.Printf("INFO: validation complete, sending notification to: %s", cfg.OutQueue)
 	n := IngestFileNotification{Bucket: bucket, Key: key}
 	b, _ := json.Marshal(n)
 	err = putSqs(sqs, cfg.OutQueue, b)
