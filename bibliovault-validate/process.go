@@ -6,6 +6,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -24,10 +25,10 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 	fmt.Printf("EVENT %s from:%s -> %s/%s\n", messageID, messageSrc, bucket, key)
 
 	// load configuration
-	//cfg, err := loadConfiguration()
-	//if err != nil {
-	//	return err
-	//}
+	cfg, err := loadConfiguration()
+	if err != nil {
+		return err
+	}
 
 	// init the S3 client
 	s3, err := newS3Client()
@@ -37,11 +38,11 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 	}
 
 	// init the SQS client
-	//sqs, err := newSqsClient()
-	//if err != nil {
-	//	fmt.Printf("ERROR: creating SQS client (%s)\n", err.Error())
-	//	return err
-	//}
+	sqs, err := newSqsClient()
+	if err != nil {
+		fmt.Printf("ERROR: creating SQS client (%s)\n", err.Error())
+		return err
+	}
 	buf := []byte{}
 
 	// get the file content
@@ -71,10 +72,6 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 	}
 
 	// ensure the XML and corresponding files are good
-	//productList, err := xmlquery.QueryAll(onix, "//Product/ProductIdentifier[ProductIDType = 3]/IDValue")
-	//for i, v := range productList {
-	//	fmt.Printf("%d: %s\n", i, v.InnerText())
-	//}
 
 	idList, err := xmlquery.QueryAll(onix, "//RecordReference")
 	errorCount := 0
@@ -89,7 +86,6 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 		} else {
 			fmt.Printf("ERROR: %s/%s - %s\n", bucket, filename, err.Error())
 			errorCount = errorCount + 1
-
 		}
 
 		fmt.Printf("%d: %s\n", i, id)
@@ -101,13 +97,14 @@ func process(messageID string, messageSrc string, bucket string, key string) err
 	}
 
 	// upload notification to the outbound queue
-	//n := IngestFileNotification{Bucket: bucket, Key: key}
-	//b, _ := json.Marshal(n)
-	//err = putSqs(sqs, cfg.OutQueue, b)
-	//if err != nil {
-	//	fmt.Printf("ERROR: publishing (%s)\n", err.Error())
-	//	return err
-	//}
+	fmt.Printf("Validation complete. Sending notification to %s", cfg.OutQueue)
+	n := IngestFileNotification{Bucket: bucket, Key: key}
+	b, _ := json.Marshal(n)
+	err = putSqs(sqs, cfg.OutQueue, b)
+	if err != nil {
+		fmt.Printf("ERROR: publishing (%s)\n", err.Error())
+		return err
+	}
 
 	return nil
 }
