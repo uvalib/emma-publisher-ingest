@@ -1,0 +1,497 @@
+{
+    "$id": "http://benetech.org/emma-federated-index/0.0.6/ingestion-record.schema.json#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$comment": "Generated from YAML OpenAPI definition by emma-federated-search/api/ingestion/lambda/emma-federated-ingest/make.py",
+    "title": "Metadata ingestion schema for EMMA Federated Search Index",
+    "description": "Schema for JSON metadata records to be submitted to the EMMA Federated Search Index ingestion service.",
+    "type": "object",
+    "allOf": [
+        {
+            "title": "Metadata Common Fields",
+            "description": "Fields common to metadata ingestion records and search results.",
+            "type": "object",
+            "allOf": [
+                {
+                    "title": "Common Emma Fields",
+                    "description": "Fields created for the EMMA project.",
+                    "type": "object",
+                    "properties": {
+                        "emma_repository": {
+                            "description": "Identifier for a repository",
+                            "type": "string",
+                            "enum": [
+                                "bookshare",
+                                "hathiTrust",
+                                "internetArchive",
+                                "emma",
+                                "openAlex",
+                                "biblioVault",
+                                "ace"
+                            ]
+                        },
+                        "emma_collection": {
+                            "description": "A set of works within a repository",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "emma_repositoryRecordId": {
+                            "description": "The unique identifier for a work within a repository",
+                            "type": "string"
+                        },
+                        "emma_retrievalLink": {
+                            "description": "Link to download an actual work from a repository",
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "emma_webPageLink": {
+                            "description": "Link to a web page which describes a work from a repository",
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "emma_lastRemediationDate": {
+                            "description": "[DEPRECATED] Date that this work was remediated.  Use `rem_remediationDate` instead.\n",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "emma_lastRemediationNote": {
+                            "description": "[DEPRECATED] Comments regarding the remediation on this work.  Use `rem_comments` instead.\n",
+                            "type": "string"
+                        },
+                        "emma_sortDate": {
+                            "description": "Last date that the work or this index was updated, guaranteeing a non-null value. If available, this defaults to the same value as last remediation date.  If not available, it defaults to date accepted.  If date accepted is not available, it defaults to the date that the record was last updated in this index. The value of sort date is determined at indexing time, and does not need to be sent through the ingestion API.",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "emma_repositoryUpdateDate": {
+                            "description": "Date that this metadata was last updated in the source repository",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "emma_repositoryMetadataUpdateDate": {
+                            "description": "[DEPRECATED] Use `emma_repositoryUpdateDate` instead. Date that this metadata was last updated in the source repository\n",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "emma_publicationDate": {
+                            "description": "The date that this work was published.  This is an\n[ISO-8601](https://www.iso.org/iso-8601-date-and-time-format.html) format (YYYY-MM-DD) date or a 4-digit year.\n",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "emma_version": {
+                            "description": "Denotes a version or edition for a non-periodical work or a single issue or episode.\n\nExamples:\n- `Student Edition`\n- `2e`\n- `InitialPub`\n- `Corrected`\n- `Augmented`\n",
+                            "type": "string"
+                        },
+                        "emma_workType": {
+                            "description": "Describes the type of work.\n",
+                            "type": "string",
+                            "enum": [
+                                "book",
+                                "video",
+                                "article",
+                                "podcast"
+                            ]
+                        },
+                        "emma_formatVersion": {
+                            "description": "Version of the format used by this instance of this work",
+                            "type": "string"
+                        },
+                        "emma_formatFeature": {
+                            "description": "List of features of the format used by this instance of this work\n* `tts` - Audio generated via Text-to-Speech\n* `human` - Audio read by a human\n* `grade1` - Grade 1 (contracted) Braille\n* `grade2` - Grade 2 (uncontracted) Braille\n* `nemeth` - Nemeth Braille Code for Mathematics and Science Notation\n* `ueb` - Unified English Braille\n* `ebae` - English Braille American Edition (Literary Code)\n* `music` - Music Braille Code.  Could also describe a music subtype of another dc_format.\n* `imagePdf` - PDF that has been scanned as images with no differentiated text\n* `digitalTextPdf` - PDF that contains digital text\n* `literary` - [DEPRECATED] Use `ebae`.\n* `technical` - [DEPRECATED] use `ueb` and/or `nemeth` as applicable.\n",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "tts",
+                                    "human",
+                                    "grade1",
+                                    "grade2",
+                                    "nemeth",
+                                    "ueb",
+                                    "ebae",
+                                    "music",
+                                    "imagePdf",
+                                    "digitalTextPdf",
+                                    "literary",
+                                    "technical"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "title": "Dublin Core fields",
+                    "description": "Fields derived from Dublin Core metadata definitions.",
+                    "type": "object",
+                    "properties": {
+                        "dc_title": {
+                            "description": "The\n[title](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/title/)\nof the work.  Refers to either a non-periodical work such as a book or movie, or the title of a work\nwithin a periodical, such as an article or episode.\n\nExamples:\n  - Book:\n     - `The Catcher in the Rye`\n     - A book\n  - Movie:\n     - `Jaws`\n     - A movie\n  - Journal Article:\n     - `A Review of Discourse Markers from the Functional Perspective`\n     - Title of a an article appearing in the _Journal of Arts and Humanities_\n  - Podcast Episode:\n     - `741: The Weight of Words`\n     - Title of an episode in the podcast _This American Life_\n",
+                            "type": "string"
+                        },
+                        "dc_creator": {
+                            "description": "List of [creators](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/creator/) of the work",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "dc_identifier": {
+                            "description": "List of standard [identifier](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/identifier/) for a work.  In the case of",
+                            "type": "array",
+                            "items": {
+                                "title": "Non-Periodical Publication Identifier",
+                                "description": "The lowercase scheme and identifier for a non-periodical publication or single episode or issue\nof a periodical. Only alphanumeric characters are accepted. No spaces or other symbols are accepted.\nDashes will be stripped from the stored identifier.\nAccepted schemes are ISBN, LCCN, UPC, OCLC, and DOI.  ISSN is deprecated in this field.\n\nExamples:\n- ISBN: `isbn:9788665654189`\n- LCCN: `lccn:a2002003456`\n- UPC: `upc:025192251344`\n- OCLC: `oclc:1089556637`\n- DOI: `doi:10.1001/jama.2021.15187` or `doi:https://doi.org/10.1001/jama.2021.15187`\n",
+                                "type": "string",
+                                "pattern": "^((isbn|upc|issn):[0-9Xx\\-]{8,17}|lccn:[a-zA-Z0-9]{1,12}|oclc:\\d{1,14}|doi:(https:\\/\\/doi.org\\/)?10\\.\\d{4,}.{0,300})$"
+                            }
+                        },
+                        "dc_publisher": {
+                            "description": "The name of the [publisher](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/publisher/)",
+                            "type": "string"
+                        },
+                        "dc_relation": {
+                            "description": "List of standard [identifiers](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/relation/) for related works",
+                            "type": "array",
+                            "items": {
+                                "title": "Non-Periodical Publication Identifier",
+                                "description": "The lowercase scheme and identifier for a non-periodical publication or single episode or issue\nof a periodical. Only alphanumeric characters are accepted. No spaces or other symbols are accepted.\nDashes will be stripped from the stored identifier.\nAccepted schemes are ISBN, LCCN, UPC, OCLC, and DOI.  ISSN is deprecated in this field.\n\nExamples:\n- ISBN: `isbn:9788665654189`\n- LCCN: `lccn:a2002003456`\n- UPC: `upc:025192251344`\n- OCLC: `oclc:1089556637`\n- DOI: `doi:10.1001/jama.2021.15187` or `doi:https://doi.org/10.1001/jama.2021.15187`\n",
+                                "type": "string",
+                                "pattern": "^((isbn|upc|issn):[0-9Xx\\-]{8,17}|lccn:[a-zA-Z0-9]{1,12}|oclc:\\d{1,14}|doi:(https:\\/\\/doi.org\\/)?10\\.\\d{4,}.{0,300})$"
+                            }
+                        },
+                        "dc_language": {
+                            "type": "array",
+                            "items": {
+                                "description": "List of codes of the primary [language(s)](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/language/) of the work, using the [ISO 639-2 3-character code](https://www.loc.gov/standards/iso639-2/php/code_list.php).",
+                                "type": "string",
+                                "pattern": "^[a-z]{3}$"
+                            }
+                        },
+                        "dc_rights": {
+                            "description": "Ownership-based [usage rights](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/rights/) on the work.  [See the Creative Commons site for descriptions of the specifics of different Creative Commons licenses.](https://creativecommons.org/about/cclicenses/) The generic `creativeCommons` value is [DEPRECATED].",
+                            "type": "string",
+                            "enum": [
+                                "publicDomain",
+                                "creativeCommons",
+                                "ccBy",
+                                "ccBySa",
+                                "ccByNa",
+                                "ccByNcSa",
+                                "ccByNd",
+                                "cc0",
+                                "copyright",
+                                "embargo",
+                                "license",
+                                "other"
+                            ]
+                        },
+                        "dc_description": {
+                            "description": "[Description](https://www.dublincore.org/specifications/dublin-cor\\\ne/dcmi-terms/terms/description/) of the work; typically a synopsis\n",
+                            "type": "string"
+                        },
+                        "dc_format": {
+                            "description": "[Format](https://www.dublincore.org/specifications/dublin-core/dcm\\\ni-terms/terms/format/) of this instance of the work.\n* `brf` - Braille Ready Format\n* `daisy` - [DAISY](https://daisy.org) digital talking book\n* `daisyAudio` - DAISY book with audio files\n* `epub` - EPUB digital document\n* `braille` - Braille formats that are not BRF (such as printed)\n* `pdf` - PDF\n* `word` - Microsoft Word\n* `tactile` - Tactile graphics\n* `kurzweil` - Kurzweil file format\n* `rtf` - Rich text format\n* `grayscalePdf` - [DEPRECATED] Use pdf instead.\n",
+                            "type": "string",
+                            "enum": [
+                                "brf",
+                                "daisy",
+                                "daisyAudio",
+                                "epub",
+                                "braille",
+                                "pdf",
+                                "grayscalePdf",
+                                "word",
+                                "tactile",
+                                "kurzweil",
+                                "rtf"
+                            ]
+                        },
+                        "dc_type": {
+                            "description": "[DEPRECATED] [Type](https://www.dublincore.org/specifications/dublin-core/dcmi-\\\nterms/terms/type/) of this instance of the work\nUse `emma_workType` instead.\n",
+                            "type": "string",
+                            "enum": [
+                                "text",
+                                "sound",
+                                "collection",
+                                "dataset",
+                                "event",
+                                "image",
+                                "interactiveResource",
+                                "service",
+                                "physicalObject",
+                                "stillImage",
+                                "movingImage"
+                            ]
+                        },
+                        "dc_subject": {
+                            "description": "List of [subjects](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/subject/) describing the work.",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "dcterms_dateAccepted": {
+                            "description": "[Date](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/terms/dateAccepted/) that the work was accepted into the repository, using [ISO-8601](https://www.iso.org/iso-8601-date-and-time-format.html) format (YYYY-MM-DD)",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "dcterms_dateCopyright": {
+                            "description": "[DEPRECATED] The 4-digit year that the work was copyrighted\nUse `emma_publicationDate` instead.\n",
+                            "type": "string",
+                            "pattern": "^[0-9]{4}$"
+                        }
+                    }
+                },
+                {
+                    "title": "Periodical Fields",
+                    "description": "Information related to periodical works, such as journals, magazines, and television and podcast series.",
+                    "type": "object",
+                    "properties": {
+                        "periodical": {
+                            "description": "True if we should treat this work like an article, issue, or episode of a periodical; False or absent otherwise.\n",
+                            "type": "boolean"
+                        }
+                    }
+                },
+                {
+                    "title": "Schema.org fields",
+                    "description": "Fields derived from schema.org accessibility metadata definitions.",
+                    "type": "object",
+                    "properties": {
+                        "s_accessibilityFeature": {
+                            "description": "List of accessibility features of this instance derived from the schema.org [Accessibility Feature specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29).",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "alternativeText",
+                                    "annotations",
+                                    "audioDescription",
+                                    "bookmarks",
+                                    "braille",
+                                    "captions",
+                                    "ChemML",
+                                    "describedMath",
+                                    "displayTransformability",
+                                    "displayTransformability/background-color",
+                                    "displayTransformability/color",
+                                    "displayTransformability/font-height",
+                                    "displayTransformability/font-size",
+                                    "displayTransformability/line-height",
+                                    "displayTransformability/word-spacing",
+                                    "highContrastAudio",
+                                    "highContrastDisplay",
+                                    "index",
+                                    "largePrint",
+                                    "latex",
+                                    "longDescription",
+                                    "MathML",
+                                    "physicalObject",
+                                    "printPageNumbers",
+                                    "readingOrder",
+                                    "rubyAnnotations",
+                                    "signLanguage",
+                                    "sound",
+                                    "stillImage",
+                                    "structuralNavigation",
+                                    "synchronizedAudioText",
+                                    "tableOfContents",
+                                    "tactileGraphic",
+                                    "tactileObject",
+                                    "taggedPDF",
+                                    "timingControl",
+                                    "transcript",
+                                    "ttsMarkup",
+                                    "unlocked"
+                                ]
+                            }
+                        },
+                        "s_accessibilityControl": {
+                            "description": "List of accessibility controls of this instance derived from to the schema.org [Accessibility Control specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29).",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "fullAudioControl",
+                                    "fullKeyboardControl",
+                                    "fullMouseControl",
+                                    "fullTouchControl",
+                                    "fullVideoControl",
+                                    "fullSwitchControl",
+                                    "fullVoiceControl"
+                                ]
+                            }
+                        },
+                        "s_accessibilityHazard": {
+                            "description": "List of accessibility hazards of this instance as derived from to the schema.org [Accessibility Hazard specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29).",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "flashing",
+                                    "noFlashingHazard",
+                                    "motionSimulation",
+                                    "noMotionSimulationHazard",
+                                    "sound",
+                                    "noSoundHazard"
+                                ]
+                            }
+                        },
+                        "s_accessibilityAPI": {
+                            "description": "List of accessibility APIs of this instance as derived from to the schema.org [Accessibility API specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29).",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "ARIA"
+                                ]
+                            }
+                        },
+                        "s_accessibilitySummary": {
+                            "description": "Human-readable summary of accessibility features or deficiencies of this instance of the work as described in the schema.org [Accessibility Summary specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29)",
+                            "type": "string"
+                        },
+                        "s_accessMode": {
+                            "description": "How the user can perceive this instance of the work as described in the schema.org [Access Mode specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29).",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "auditory",
+                                    "chartOnVisual",
+                                    "chemOnVisual",
+                                    "colorDependent",
+                                    "diagramOnVisual",
+                                    "mathOnVisual",
+                                    "musicOnVisual",
+                                    "tactile",
+                                    "textOnVisual",
+                                    "textual",
+                                    "visual"
+                                ]
+                            }
+                        },
+                        "s_accessModeSufficient": {
+                            "description": "A list of single or combined access modes that are sufficient to understand all the intellectual content of a resource as described in the schema.org [Access Mode Sufficient specification](https://www.w3.org/wiki/WebSchemas/Accessibility#Accessibility_terms_.28Version_2.0.29)",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "auditory",
+                                    "tactile",
+                                    "textual",
+                                    "visual"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "title": "Remediation Fields",
+                    "description": "Detailed information about what remediation has been performed on this specific work.",
+                    "type": "object",
+                    "properties": {
+                        "rem_source": {
+                            "description": "The origin of the content on which the remediated file was based.",
+                            "type": "string",
+                            "enum": [
+                                "bookshare",
+                                "hathiTrust",
+                                "internetArchive",
+                                "emma",
+                                "accessTextNetwork",
+                                "publisher",
+                                "purchased",
+                                "faculty",
+                                "student",
+                                "library",
+                                "otherDso",
+                                "other"
+                            ]
+                        },
+                        "rem_metadataSource": {
+                            "description": "List of the origins of the metadata for the original creative work on which the remediated file was based.",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "rem_remediatedBy": {
+                            "description": "List of the the origins of the remediated file, normally identifies the DSO.",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "rem_complete": {
+                            "description": "True if the submission is a presentation of the entire original work; false if the submission only covers certain sections or chapters, or contains gaps or omissions.",
+                            "type": "boolean"
+                        },
+                        "rem_coverage": {
+                            "description": "For a submission which does not present the entire original work, describe the part(s) which are covered by the submission.",
+                            "type": "string"
+                        },
+                        "rem_remediatedAspects": {
+                            "description": "List of the remediations that are provided in this submission.",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "scannedAndOcrd",
+                                    "proofreadCorrectedOcr",
+                                    "addedBookmarks",
+                                    "taggedPdf",
+                                    "addedImageDescriptions",
+                                    "structuredHeadings",
+                                    "linkedToc",
+                                    "fixedTables",
+                                    "addedMathMl",
+                                    "foreignLanguageMarkup",
+                                    "transcribersNotes",
+                                    "annotations"
+                                ]
+                            }
+                        },
+                        "rem_textQuality": {
+                            "description": "A measure of the quality of the original file on which the submission was based.\n  * `rawOcr` - Raw OCR; scanned with OCR but not otherwise processed\n  * `cleanedOcr` - Cleaned OCR\n  * `rekeyed` - Rekeyed\n  * `proofread` - Proofread\n  * `published` - Received in an electronic format from the publisher\n",
+                            "type": "string",
+                            "enum": [
+                                "rawOcr",
+                                "cleanedOcr",
+                                "rekeyed",
+                                "proofread",
+                                "published"
+                            ]
+                        },
+                        "rem_status": {
+                            "description": "The remediation status of submitted file.",
+                            "type": "string",
+                            "enum": [
+                                "remediated",
+                                "notRemediated",
+                                "bornAccessible"
+                            ]
+                        },
+                        "rem_remediationDate": {
+                            "description": "Date that this work was remediated.  This is an [ISO-8601](https://www.iso.org/iso-8601-date-and-time-format.html) format (YYYY-MM-DD) date.",
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "rem_comments": {
+                            "description": "Comments regarding the remediation on this work",
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "required": [
+        "emma_repository",
+        "emma_repositoryRecordId",
+        "emma_retrievalLink",
+        "dc_title",
+        "dc_format"
+    ]
+}

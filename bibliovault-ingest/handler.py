@@ -2,7 +2,7 @@
 #
 #
 
-from process import *
+import process
 
 def lambda_handler(event, context):
 
