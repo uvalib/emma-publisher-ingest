@@ -7,6 +7,7 @@ INGESTION_SCHEMA_FILE = 'ingestion-record.schema.json' if os.path.exists('ingest
 
 doc_validator = DocValidator(schema_file_name=INGESTION_SCHEMA_FILE)
 opensearch_conn = None
-DEFAULT_OPENSEARCH_HOST = 'localhost:9001'
-DEFAULT_OPENSEARCH_INDEX = 'emma-federated-index-staging-1.0.1'
+
+DEFAULT_OPENSEARCH_HOST = 'vpc-emma-index-production-glc53yq4angokfgqxlmzalupqe.us-east-1.es.amazonaws.com:443'
+DEFAULT_OPENSEARCH_INDEX = 'emma-federated-index-production'
         

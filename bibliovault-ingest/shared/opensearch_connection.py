@@ -8,46 +8,54 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-DEFAULT_ELASTICSEARCH_HOST = 'vpc-emma-index-production-glc53yq4angokfgqxlmzalupqe.us-east-1.es.amazonaws.com'
-#DEFAULT_ELASTICSEARCH_HOST = 'emma-search-production.internal.lib.virginia.edu'
-#DEFAULT_ELASTICSEARCH_HOST = 'localhost:9000'
-DEFAULT_ELASTICSEARCH_INDEX = 'emma-federated-index-production'
+DEFAULT_OPENSEARCH_HOST = 'vpc-emma-index-production-glc53yq4angokfgqxlmzalupqe.us-east-1.es.amazonaws.com'
+#DEFAULT_OPENSEARCH_HOST = 'emma-search-production.internal.lib.virginia.edu'
+#DEFAULT_OPENSEARCH_HOST = 'localhost:9000'
+DEFAULT_OPENSEARCH_INDEX = 'emma-federated-index-production'
 
-EMMA_ELASTICSEARCH_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
-EMMA_ELASTICSEARCH_SERVICE = 'es'
+EMMA_OPENSEARCH_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+EMMA_OPENSEARCH_SERVICE = 'es'
 
 class OpenSearchConnection :
+
+    
     def __init__(self, url, index, boto3 = None):
         self.url = url
         self.index = index
-        EMMA_ELASTICSEARCH_URL_PARTS = url.partition(":")
-        EMMA_ELASTICSEARCH_HOST = EMMA_ELASTICSEARCH_URL_PARTS[0]
-        EMMA_ELASTICSEARCH_PORT = int(EMMA_ELASTICSEARCH_URL_PARTS[2]) if len(EMMA_ELASTICSEARCH_URL_PARTS[2]) > 0 else 443
-        EMMA_PROXY =  EMMA_ELASTICSEARCH_HOST == 'localhost' 
+        self.EMMA_OPENSEARCH_URL_PARTS = url.partition(":")
+        self.EMMA_OPENSEARCH_HOST = self.EMMA_OPENSEARCH_URL_PARTS[0]
+        self.EMMA_OPENSEARCH_PORT = int(self.EMMA_OPENSEARCH_URL_PARTS[2]) if len(self.EMMA_OPENSEARCH_URL_PARTS[2]) > 0 else 443
+        self.EMMA_PROXY =  self.EMMA_OPENSEARCH_HOST == 'localhost' 
+
         # if boto3 is not None : 
         #     credentials = boto3.Session().get_credentials()
         #     EMMA_ACCESS_KEY = credentials.access_key
         #     EMMA_SECRET_KEY = credentials.secret_key
         #
         # else :
-        EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
-        EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
+        self.EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
+        self.EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
 
-        auth = AWSRequestsAuth(aws_access_key=EMMA_ACCESS_KEY,
-                               aws_secret_access_key=EMMA_SECRET_KEY,
-                               aws_host=EMMA_ELASTICSEARCH_HOST,
-                               aws_region=EMMA_ELASTICSEARCH_REGION,
-                               aws_service=EMMA_ELASTICSEARCH_SERVICE)
+        self.auth = AWSRequestsAuth(aws_access_key=self.EMMA_ACCESS_KEY,
+                               aws_secret_access_key=self.EMMA_SECRET_KEY,
+                               aws_host=self.EMMA_OPENSEARCH_HOST,
+                               aws_region=EMMA_OPENSEARCH_REGION,
+                               aws_service=EMMA_OPENSEARCH_SERVICE)
         
-        self.connection = OpenSearch(
-            hosts=[{'host': EMMA_ELASTICSEARCH_HOST, 'port': EMMA_ELASTICSEARCH_PORT}],
-            http_auth=auth if not EMMA_PROXY else None,
-            use_ssl= True,
-            verify_certs= not EMMA_PROXY,
-            connection_class=RequestsHttpConnection,
-            # don't show warnings about ssl certs verification
-            ssl_show_warn=False
-    )
+        try :
+            logger.info("trying to connect to host " + self.EMMA_OPENSEARCH_HOST + " at port " + str(self.EMMA_OPENSEARCH_PORT) )
+            self.connection = OpenSearch(
+                hosts=[{'host': self.EMMA_OPENSEARCH_HOST, 'port': self.EMMA_OPENSEARCH_PORT}],
+                http_auth=self.auth if not self.EMMA_PROXY else None,
+                use_ssl= True,
+                verify_certs= not self.EMMA_PROXY,
+                connection_class=RequestsHttpConnection,
+                # don't show warnings about ssl certs verification
+                ssl_show_warn=False)
+        except Exception as e :
+            logger.exception(e)
+            
+            
 
 
 # def make_opensearch_connection(host, index ) :

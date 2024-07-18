@@ -50,7 +50,7 @@ def get_presigned_url_from_url(url):
 def readfile(filename):
     """
     This is the main loop receives a filename (or url) containing bibliovault metadata
-	It reads the data, processes it and sends it to the opensearch index.
+    It reads the data, processes it and sends it to the opensearch index.
     It is separated out from the top-level lambda function the processing can also be started from the command line
     """
     
