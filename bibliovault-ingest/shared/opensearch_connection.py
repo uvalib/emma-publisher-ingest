@@ -1,9 +1,12 @@
 import os
 import logging
+import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 from requests.packages import urllib3
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import paramiko
+from sshtunnel import SSHTunnelForwarder
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -16,107 +19,95 @@ DEFAULT_OPENSEARCH_INDEX = 'emma-federated-index-production'
 EMMA_OPENSEARCH_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
 EMMA_OPENSEARCH_SERVICE = 'es'
 
-class OpenSearchConnection :
+def get_host_and_port(urlstring, default_port = 443):
+    url_parts = urlstring.partition(":")
+    host = url_parts[0]
+    port = int(url_parts[2]) if len(url_parts[2]) > 0 else default_port
+    return host, port
 
-    
-    def __init__(self, url, index, boto3 = None):
+
+class OpenSearchConnection :
+   
+    def __init__(self, url, index, boto3 = None, tunnelhost = None, tunneluser = None, remoteurl = None, sshkey = None):
         self.url = url
         self.index = index
-        self.EMMA_OPENSEARCH_URL_PARTS = url.partition(":")
-        self.EMMA_OPENSEARCH_HOST = self.EMMA_OPENSEARCH_URL_PARTS[0]
-        self.EMMA_OPENSEARCH_PORT = int(self.EMMA_OPENSEARCH_URL_PARTS[2]) if len(self.EMMA_OPENSEARCH_URL_PARTS[2]) > 0 else 443
-        self.EMMA_PROXY =  self.EMMA_OPENSEARCH_HOST == 'localhost' 
+        self.host, self.port  = get_host_and_port(url, 443)
+        self.proxy =  (self.host == 'localhost') 
 
-        # if boto3 is not None : 
-        #     credentials = boto3.Session().get_credentials()
-        #     EMMA_ACCESS_KEY = credentials.access_key
-        #     EMMA_SECRET_KEY = credentials.secret_key
-        #
-        # else :
-        self.EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
-        self.EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
+        if boto3 is not None : 
+            credentials = boto3.Session().get_credentials()
+            self.EMMA_ACCESS_KEY = credentials.access_key
+            self.EMMA_SECRET_KEY = credentials.secret_key
+        
+        else :
+            self.EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
+            self.EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
 
         self.auth = AWSRequestsAuth(aws_access_key=self.EMMA_ACCESS_KEY,
                                aws_secret_access_key=self.EMMA_SECRET_KEY,
-                               aws_host=self.EMMA_OPENSEARCH_HOST,
+                               aws_host=self.host,
                                aws_region=EMMA_OPENSEARCH_REGION,
                                aws_service=EMMA_OPENSEARCH_SERVICE)
+        self.tunnel_started = False 
+        self.tunnel = None
+        self.tunnelhost = tunnelhost
+        self.tunneluser = tunneluser
+        self.remotehost = None
+        self.remoteport = None
+        if (remoteurl) : 
+            self.remotehost, self.remoteport = get_host_and_port(remoteurl, 443)
+        self.sshkey = sshkey
+        self.connection = None
+
+    def make_tunnel(self):
+        self.tunnel_started = False 
+        if self.tunnelhost and self.tunneluser and self.remotehost and self.remoteport and self.sshkey :
+            # Setting up the SSH tunnel
+            self.tunnel = SSHTunnelForwarder(
+                (self.tunnelhost, 22),
+                ssh_username=self.tunneluser,
+                ssh_pkey=self.sshkey,
+                remote_bind_address=(self.remotehost, self.remoteport),
+                local_bind_address=('localhost', self.port)
+            )
+        try:
+            self.tunnel.start()
+            logger.info("SSH tunnel established")
+            self.tunnel_started = True
+        except Exception as e:
+            logger.info(f"Failed to establish SSH tunnel: {e}")
+            raise e
+
+
+    def connect(self):
+        if not self.tunnel_started: 
+            if self.tunnelhost and self.tunneluser and self.remotehost and self.remoteport and self.sshkey :
+                self.make_tunnel()
         
-        try :
-            logger.info("trying to connect to host " + self.EMMA_OPENSEARCH_HOST + " at port " + str(self.EMMA_OPENSEARCH_PORT) )
-            self.connection = OpenSearch(
-                hosts=[{'host': self.EMMA_OPENSEARCH_HOST, 'port': self.EMMA_OPENSEARCH_PORT}],
-                http_auth=self.auth if not self.EMMA_PROXY else None,
-                use_ssl= True,
-                verify_certs= not self.EMMA_PROXY,
-                connection_class=RequestsHttpConnection,
-                # don't show warnings about ssl certs verification
-                ssl_show_warn=False)
-        except Exception as e :
-            logger.exception(e)
-            
-            
+        if not self.connection :
+            if self.host and self.port:
+                try :
+                    logger.info("trying to connect to host " + self.host + " at port " + str(self.port) )
+                    self.connection = OpenSearch(
+                        hosts=[{'host': self.host, 'port': self.port}],
+                        http_auth=self.auth if not self.proxy else None,
+                        use_ssl= True,
+                        verify_certs= not self.proxy,
+                        connection_class=RequestsHttpConnection,
+                        # don't show warnings about ssl certs verification
+                        ssl_show_warn=False)
+                except Exception as e :
+                    logger.exception(e)
+                    raise e
 
+    def close(self) :
+        if (self.connection) :
+            self.connection.transport.close()
+            self.connection = None
+            logger.info("Opensearch connection closed")
 
-# def make_opensearch_connection(host, index ) :
-#     global EMMA_ELASTICSEARCH_HOST
-#     global EMMA_ELASTICSEARCH_INDEX
-#     global ELASTICSEARCH_CONN
-#     EMMA_ELASTICSEARCH_HOST = host
-#     EMMA_ELASTICSEARCH_INDEX = index
-#     EMMA_ELASTICSEARCH_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
-#     EMMA_ELASTICSEARCH_SERVICE = 'es'
-#
-#     GOLDEN_KEY = os.environ.get('GOLDEN_KEY', 'unset')
-#
-#     #credentials = boto3.Session().get_credentials()
-#     service = 'es'
-#     #credentials = boto3.Session().get_credentials()
-#     #awsauth = AWSV4SignerAuth(EMMA_ACCESS_KEY, EMMA_SECRET_KEY, EMMA_ELASTICSEARCH_REGION, EMMA_ELASTICSEARCH_SERVICE)
-#
-#     auth = AWSRequestsAuth(aws_access_key=EMMA_ACCESS_KEY,
-#                            aws_secret_access_key=EMMA_SECRET_KEY,
-#                            aws_host=EMMA_ELASTICSEARCH_HOST,
-#                            aws_region=EMMA_ELASTICSEARCH_REGION,
-#                            aws_service=EMMA_ELASTICSEARCH_SERVICE)
-# # awsauth = AWSV4SignerAuth(credentials.access_key, credentials.secret_key,
-# #                    EMMA_ELASTICSEARCH_REGION, EMMA_ELASTICSEARCH_SERVICE, session_token=credentials.token)
-#
-# # ELASTICSEARCH_CONN = Elasticsearch(
-# #     hosts=[{'host': EMMA_ELASTICSEARCH_HOST, 'port': 443}],
-# #     http_auth=awsauth,
-# #     use_ssl=True,
-# #     verify_certs=True,
-# #     connection_class=RequestsHttpConnection
-# # )
-#
-#     EMMA_ELASTICSEARCH_URL_PARTS = EMMA_ELASTICSEARCH_HOST.partition(":")
-#     EMMA_ELASTICSEARCH_PORT = int(EMMA_ELASTICSEARCH_URL_PARTS[2]) if len(EMMA_ELASTICSEARCH_URL_PARTS[2]) > 0 else 443
-#     EMMA_PROXY =  EMMA_ELASTICSEARCH_URL_PARTS[0] == 'localhost' 
-#
-#     if (EMMA_PROXY) :
-#         urllib3.disable_warnings(InsecureRequestWarning)
-#
-#     ELASTICSEARCH_CONN = OpenSearch(
-#         hosts=[{'host': EMMA_ELASTICSEARCH_URL_PARTS[0], 'port': EMMA_ELASTICSEARCH_PORT}],
-#         # http_auth=auth,
-#         use_ssl= True,
-#         verify_certs= not EMMA_PROXY,
-#         connection_class=RequestsHttpConnection,
-#         # don't show warnings about ssl certs verification
-#         ssl_show_warn=False
-#     )
-#     return ELASTICSEARCH_CONN
-#
-#
-# RENAMED_FIELDS = {
-#     'emma_lastRemediationNote':'rem_comments',
-#     'emma_lastRemediationDate': 'rem_remediationDate',
-#     'emma_repositoryMetadataUpdateDate': 'emma_repositoryUpdateDate'
-# }
-#
-# ORIGINAL_FIELDS = {
-#     'rem_comments':'emma_lastRemediationNote',
-#     'rem_remediationDate': 'emma_lastRemediationDate',
-#     'emma_repositoryUpdateDate': 'emma_repositoryMetadataUpdateDate'
-# }
+        if self.tunnel_started :
+            self.tunnel.stop()
+            self.tunnel_started = False
+            logger.info("SSH tunnel closed")
+
