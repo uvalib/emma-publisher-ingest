@@ -30,6 +30,8 @@ iso8601 = "==2.1.0"
 opensearch = "==0.8"
 opensearch-dsl = "==2.0.1"
 aws-requests-auth = "==0.4.3"
+paramiko = "*"
+sshtunnel = "*"
 
 [requires]
 python_version = "3.9"
