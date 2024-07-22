@@ -4,9 +4,7 @@ import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 from requests.packages import urllib3
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-import paramiko
-from sshtunnel import SSHTunnelForwarder
+from shared import globals as my_globals
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -28,14 +26,14 @@ def get_host_and_port(urlstring, default_port = 443):
 
 class OpenSearchConnection :
    
-    def __init__(self, url, index, boto3 = None, tunnelhost = None, tunneluser = None, remoteurl = None, sshkey = None):
+    def __init__(self, url, index, tunnelhost = None, tunneluser = None, remoteurl = None, sshkey = None):
         self.url = url
         self.index = index
         self.host, self.port  = get_host_and_port(url, 443)
         self.proxy =  (self.host == 'localhost') 
 
-        if boto3 is not None : 
-            credentials = boto3.Session().get_credentials()
+        if my_globals.botocore_session is not None : 
+            credentials = my_globals.botocore_session.get_credentials()
             self.EMMA_ACCESS_KEY = credentials.access_key
             self.EMMA_SECRET_KEY = credentials.secret_key
         
@@ -63,20 +61,21 @@ class OpenSearchConnection :
         self.tunnel_started = False 
         if self.tunnelhost and self.tunneluser and self.remotehost and self.remoteport and self.sshkey :
             # Setting up the SSH tunnel
+            from sshtunnel import SSHTunnelForwarder
             self.tunnel = SSHTunnelForwarder(
                 (self.tunnelhost, 22),
                 ssh_username=self.tunneluser,
                 ssh_pkey=self.sshkey,
                 remote_bind_address=(self.remotehost, self.remoteport),
                 local_bind_address=('localhost', self.port)
-            )
-        try:
-            self.tunnel.start()
-            logger.info("SSH tunnel established")
-            self.tunnel_started = True
-        except Exception as e:
-            logger.info(f"Failed to establish SSH tunnel: {e}")
-            raise e
+                )
+            try:
+                self.tunnel.start()
+                logger.info("SSH tunnel established")
+                self.tunnel_started = True
+            except Exception as e:
+                logger.info(f"Failed to establish SSH tunnel: {e}")
+                raise e
 
 
     def connect(self):

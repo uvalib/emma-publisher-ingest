@@ -88,7 +88,7 @@ def main():
 
 # Starting the SSH tunnel
 
-    
+    my_globals.botocore_session = boto3.Session()
     my_globals.opensearch_conn = OpenSearchConnection(opensearch_url, index, tunnelhost = tunnelhost, tunneluser = tunneluser, 
                                                       remoteurl = remoteurl, sshkey = sshkey)
     try : 
