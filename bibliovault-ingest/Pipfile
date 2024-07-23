@@ -32,6 +32,7 @@ opensearch-dsl = "==2.0.1"
 aws-requests-auth = "==0.4.3"
 paramiko = "*"
 sshtunnel = "*"
+cryptography = "==42.0.8"
 
 [requires]
 python_version = "3.9"
