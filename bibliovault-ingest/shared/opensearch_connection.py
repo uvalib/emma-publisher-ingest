@@ -1,8 +1,8 @@
 import os
 import logging
-import boto3
+#import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection
-from aws_requests_auth.aws_auth import AWSRequestsAuth
+# from aws_requests_auth.aws_auth import AWSRequestsAuth
 from requests.packages import urllib3
 from shared import globals as my_globals
 
@@ -32,20 +32,20 @@ class OpenSearchConnection :
         self.host, self.port  = get_host_and_port(url, 443)
         self.proxy =  (self.host == 'localhost') 
 
-        if my_globals.botocore_session is not None : 
-            credentials = my_globals.botocore_session.get_credentials()
-            self.EMMA_ACCESS_KEY = credentials.access_key
-            self.EMMA_SECRET_KEY = credentials.secret_key
+        #if my_globals.botocore_session is not None : 
+        #    credentials = my_globals.botocore_session.get_credentials()
+        #    self.EMMA_ACCESS_KEY = credentials.access_key
+        #    self.EMMA_SECRET_KEY = credentials.secret_key
+         
+        #else :
+        #    self.EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
+        #    self.EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
         
-        else :
-            self.EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
-            self.EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
-
-        self.auth = AWSRequestsAuth(aws_access_key=self.EMMA_ACCESS_KEY,
-                               aws_secret_access_key=self.EMMA_SECRET_KEY,
-                               aws_host=self.host,
-                               aws_region=EMMA_OPENSEARCH_REGION,
-                               aws_service=EMMA_OPENSEARCH_SERVICE)
+        #self.auth = AWSRequestsAuth(aws_access_key=self.EMMA_ACCESS_KEY,
+        #                       aws_secret_access_key=self.EMMA_SECRET_KEY,
+        #                       aws_host=self.host,
+        #                       aws_region=EMMA_OPENSEARCH_REGION,
+        #                       aws_service=EMMA_OPENSEARCH_SERVICE)
         self.tunnel_started = False 
         self.tunnel = None
         self.tunnelhost = tunnelhost
@@ -89,7 +89,8 @@ class OpenSearchConnection :
                     logger.info("trying to connect to host " + self.host + " at port " + str(self.port) )
                     self.connection = OpenSearch(
                         hosts=[{'host': self.host, 'port': self.port}],
-                        http_auth=self.auth if not self.proxy else None,
+                        http_auth= None,
+                        #http_auth=self.auth if not self.proxy else None,
                         use_ssl= True,
                         verify_certs= not self.proxy,
                         connection_class=RequestsHttpConnection,

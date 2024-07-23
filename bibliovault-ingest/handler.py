@@ -53,7 +53,7 @@ def lambda_handler(event, context):
     if event:
         try : 
             my_globals.opensearch_conn.connect()
-            logger.info( "RECV [" + str(event) + "]\n" )
+            logger.info( "RECV [" + str(event) + "]" )
     
             for record in event["Records"]:
                 # extract the record and process

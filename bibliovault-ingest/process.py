@@ -14,14 +14,15 @@ logger.setLevel(logging.INFO)
 
 def process(bucket, key):
 
-    logger.info( "EVENT: " + bucket + "/" + key + "\n" )
+    logger.info( "EVENT: " + bucket + "/" + key )
 
     s3 = boto3.resource('s3')
 
     # download the file
-    logger.info(": downloading s3://" + bucket + "/" + key + ":\n")
+    logger.info(" downloading s3://" + bucket + "/" + key )
     response = s3.Object(bucket, key).get()
     buf = response['Body'].read()
+    logger.info("downloaded, size is : " + str(len(buf)))
 
     # do the processing
     num = record_handling.process_file_as_string(buf)
@@ -69,6 +70,7 @@ def readfile(filename):
         response.raise_for_status()
         # Use the content of the response as you would with a file
         file_contents = response.content.decode('utf-8')  # assuming the file is in UTF-8 encoding
+        logger.info("downloaded, size is : " + str(len(file_contents)))
     else:
         if filename.endswith('.gz'):
             my_open = gzip.open
@@ -76,6 +78,7 @@ def readfile(filename):
             my_open = open    
         with my_open(filename, "r", encoding='utf-8') as file:
             file_contents = file.read()
+        logger.info("downloaded, size is : " + str(len(file_contents)))
 
     try : 
         # Read the contents of the file            
