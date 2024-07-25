@@ -17,7 +17,6 @@ deployable:
 	cp handler.py $(DEPLOYDIR)
 	cp process.py $(DEPLOYDIR)
 	cp -R bibliovault_shared  $(DEPLOYDIR)
-	cp -R ingestion_validator  $(DEPLOYDIR)
 	cp -R shared  $(DEPLOYDIR)
 	cp ingestion-record.schema.json $(DEPLOYDIR)
 	cd $(DEPLOYDIR); zip -r deployment.zip *
