@@ -76,7 +76,6 @@ def string_after(s, delimiter):
     else:
         return ''
 
-
 def get_languages(record):
     """
     I saw multiple language formats for language from different sources,
@@ -146,19 +145,9 @@ def listify(prop):
     """
     return prop if isinstance(prop, list) else [prop] 
 
-# def stringify(prop):
-#     """
-#     If a single property is not  a string but should be, convert to a string
-#     """
-#     return prop if not isinstance(prop, list) else " ".join(prop)
+def stringify(prop):
+    """
+    If a single property is not  a string but should be, convert to a string
+    """
+    return prop if not isinstance(prop, list) else " ".join(prop)
 
-def batch(iterable, batch_size=1):
-    """
-    Batches iterables in even batches of n length, until the last batch, which runs until the end.
-    Batch size defaults to 1.
-    """
-    if batch_size < 1:
-        raise ValueError(f"Batch size can not be less than 1: {batch_size}")
-    length = len(iterable)
-    for ndx in range(0, length, batch_size):
-        yield iterable[ndx:min(ndx + batch_size, length)]

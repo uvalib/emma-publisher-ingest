@@ -7,7 +7,7 @@ import sys
 import logging
 import boto3
 from shared import globals as my_globals
-from shared.opensearch_connection import OpenSearchConnection
+from shared.OpenSearchConnection import OpenSearchConnection
 from process import process
 
 

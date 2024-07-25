@@ -1,17 +1,14 @@
 import os
 import logging
-#import boto3
+import socket
+
+from opensearchpy import helpers
 from opensearchpy import OpenSearch, RequestsHttpConnection
-# from aws_requests_auth.aws_auth import AWSRequestsAuth
-from requests.packages import urllib3
-from shared import globals as my_globals
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 DEFAULT_OPENSEARCH_HOST = 'vpc-emma-index-production-glc53yq4angokfgqxlmzalupqe.us-east-1.es.amazonaws.com'
-#DEFAULT_OPENSEARCH_HOST = 'emma-search-production.internal.lib.virginia.edu'
-#DEFAULT_OPENSEARCH_HOST = 'localhost:9000'
 DEFAULT_OPENSEARCH_INDEX = 'emma-federated-index-production'
 
 EMMA_OPENSEARCH_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
@@ -30,22 +27,10 @@ class OpenSearchConnection :
         self.url = url
         self.index = index
         self.host, self.port  = get_host_and_port(url, 443)
+        if (not self.is_unused_port(self.port)) :
+            self.port = self.find_unused_port(self.port, self.port+100)
         self.proxy =  (self.host == 'localhost') 
 
-        #if my_globals.botocore_session is not None : 
-        #    credentials = my_globals.botocore_session.get_credentials()
-        #    self.EMMA_ACCESS_KEY = credentials.access_key
-        #    self.EMMA_SECRET_KEY = credentials.secret_key
-         
-        #else :
-        #    self.EMMA_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID', None)
-        #    self.EMMA_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
-        
-        #self.auth = AWSRequestsAuth(aws_access_key=self.EMMA_ACCESS_KEY,
-        #                       aws_secret_access_key=self.EMMA_SECRET_KEY,
-        #                       aws_host=self.host,
-        #                       aws_region=EMMA_OPENSEARCH_REGION,
-        #                       aws_service=EMMA_OPENSEARCH_SERVICE)
         self.tunnel_started = False 
         self.tunnel = None
         self.tunnelhost = tunnelhost
@@ -59,7 +44,7 @@ class OpenSearchConnection :
 
     def make_tunnel(self):
         self.tunnel_started = False 
-        if self.tunnelhost and self.tunneluser and self.remotehost and self.remoteport and self.sshkey :
+        if self.tunnelhost and self.tunneluser and self.remotehost and self.remoteport :
             # Setting up the SSH tunnel
             from sshtunnel import SSHTunnelForwarder
             self.tunnel = SSHTunnelForwarder(
@@ -100,6 +85,13 @@ class OpenSearchConnection :
                     logger.exception(e)
                     raise e
 
+    def bulk(self, bulk_upsert):
+        try: 
+            helpers.bulk(self.connection, bulk_upsert, max_retries=2)
+        except Exception as e:
+            logger.exception(e)
+            raise e
+            
     def close(self) :
         if (self.connection) :
             self.connection.transport.close()
@@ -111,3 +103,16 @@ class OpenSearchConnection :
             self.tunnel_started = False
             logger.info("SSH tunnel closed")
 
+    def is_unused_port(self, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(('', port))
+                return True
+            except OSError:
+                return False
+
+    def find_unused_port(self, start_port, end_port):
+        for port in range(start_port, end_port + 1):
+            if self.is_unused_port(port) :
+                return (port)
+        raise RuntimeError("No unused ports available in the specified range.")

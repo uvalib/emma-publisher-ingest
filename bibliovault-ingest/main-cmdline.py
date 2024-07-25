@@ -67,26 +67,6 @@ def main():
         sshkey = os.getenv("BASTION_SSHKEY", None)
     
     session = boto3.Session()
-    
-    # tunnel_started = False 
-    # if args.tunnelhost and args.remoteurl and args.tunneluser :
-    #     # Setting up the SSH tunnel
-    #     tunnel = SSHTunnelForwarder(
-    #         (args.tunnelhost, 22),
-    #         ssh_username=args.tunneluser,
-    #         ssh_pkey=args.sshkey,
-    #         remote_bind_address=(args.remoteurl, 443),
-    #         local_bind_address=('localhost', 9200)
-    #         )
-    #     try:
-    #         tunnel.start()
-    #         logger.info("SSH tunnel established")
-    #         tunnel_started = True
-    #     except Exception as e:
-    #         logger.info(f"Failed to establish SSH tunnel: {e}")
-
-
-# Starting the SSH tunnel
 
     my_globals.botocore_session = boto3.Session()
     my_globals.opensearch_conn = OpenSearchConnection(opensearch_url, index, tunnelhost = tunnelhost, tunneluser = tunneluser, 
