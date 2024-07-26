@@ -1,5 +1,5 @@
 import os
-from shared import DocValidator.DocValidator
+from shared.DocValidator import DocValidator
 
 #  Globals
 INGESTION_SCHEMA_FILE = 'ingestion-record.schema.json' if os.path.exists('ingestion-record.schema.json') \
