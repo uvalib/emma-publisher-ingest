@@ -27,7 +27,7 @@ class OpenSearchConnection :
         self.url = url
         self.index = index
         self.host, self.port  = get_host_and_port(url, 443)
-        if (not self.is_unused_port(self.port)) :
+        if (self.host == 'localhost' and tunnelhost is not None and not self.is_unused_port(self.port)) :
             self.port = self.find_unused_port(self.port, self.port+100)
         self.proxy =  (self.host == 'localhost') 
 
