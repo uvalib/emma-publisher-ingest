@@ -61,6 +61,16 @@ def get_now_iso8601_date_utc():
     utc_dt = datetime.utcnow().strftime("%Y-%m-%d")
     return utc_dt
 
+def is_today(date_str):
+    # Parse the date string into a datetime object
+    input_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    
+    # Get today's date
+    today = datetime.today().date()
+    
+    # Return True if the dates are equal, otherwise False
+    return input_date == today
+
 def string_after(s, delimiter):
     """
     Returns the part of the string after the given delimiter.
