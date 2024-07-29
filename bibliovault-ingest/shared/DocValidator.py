@@ -2,12 +2,15 @@
 Class which uses a jsonSchema to validate some JSON
 """
 import json
+import logging
 
 import iso8601
 from iso8601 import ParseError
 
 from jsonschema import Draft7Validator, ValidationError, FormatChecker
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 class DocValidator:
     def __init__(self, schema_file_name):
@@ -32,9 +35,22 @@ class DocValidator:
         """
         Load the jsonSchema for an ingestion record into a data structure
         """
-        with open(schema_file_name, 'r') as schema_file:
-            data = schema_file.read()
-            return json.loads(data)
+        try: 
+            with open(schema_file_name, 'r') as schema_file:
+                data = schema_file.read()
+                return json.loads(data)
+        except FileNotFoundError as e:
+            logger.error("ERROR: The file does not exist.")
+            raise RuntimeError(e)
+        except PermissionError as e:
+            logger.error("ERROR: You do not have permission to open this file.")
+            raise e
+        except IsADirectoryError as e:
+            logger.error("ERROR: The specified path is a directory, not a file.")
+            raise e
+        except OSError as e:
+            logger.error(f"ERROR: An error occurred: {e}")
+            raise e
 
     def validate(self, doc, doc_count, errors) -> bool:
         """
