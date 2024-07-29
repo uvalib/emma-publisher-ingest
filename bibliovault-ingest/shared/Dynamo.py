@@ -28,23 +28,32 @@ class DynamoTable :
         self.dynamodb = dynamodb
         self.prefix = prefix
         self.table = dynamodb.Table(table_name)
-        
+
     def initialize_db_flag(self, flag_name, init):
         field = self.prefix + flag_name
-        self.table.put_item(
-            Item={
-                'name': field,
-                'val': init
-            }
-        )
+        try :
+            self.table.put_item(
+                Item={
+                    'name': field,
+                    'val': init
+                }
+            )
+        except ResourceNotFoundException as e:
+            logger.error("put_item failed for field: "+ field + " on table: " + table_name)
+            raise e
 
 
     def get_db_value(self, attr_name):
         field = self.prefix + attr_name
-        response = self.table.get_item(
-        Key={
-            'name': field
-        })
+        try: 
+            response = self.table.get_item(
+                Key={
+                    'name': field
+                })
+        except ResourceNotFoundException as e:
+            logger.error("get_item failed for field: "+ field + " on table: " + table_name)
+            raise e
+
         if 'Item' in response and len(response['Item']) > 0:
             item = response['Item']
             return item['val']
@@ -54,54 +63,71 @@ class DynamoTable :
 
     def set_db_value(self, attr_name, attr_value):
         field = self.prefix + attr_name
-        self.table.put_item(
-            Item={
-                'name': field,
-                'val': attr_value
-            }
-        )
+        try :
+            self.table.put_item(
+                Item={
+                    'name': field,
+                    'val': attr_value
+                }
+            )
+        except ResourceNotFoundException as e:
+            logger.error("put_item failed for field: "+ field + " on table: " + table_name)
+            raise e
 
 
     def delete_db_value(self, attr_name):
         field = self.prefix + attr_name
-        self.table.delete_item(
-            Key={
-                'name': field
-            }
-        )
+        try :
+            self.table.delete_item(
+                Key={
+                    'name': field
+                }
+            )
+        except ResourceNotFoundException as e:
+            logger.error("delete_item failed for field: "+ field + " on table: " + table_name)
+            raise e
+    
 
 
     def start_running(self, flag_name):
         field = self.prefix + flag_name
-        self.table.update_item(
-            Key={
-                'name': field
-            },
-            UpdateExpression='SET val = :val1, started = :val2',
-            ExpressionAttributeValues={
-                ':val1': True,
-                ':val2': helpers.get_today_iso8601_datetime_pst()
-            }
-        )
+        try :
+            self.table.update_item(
+                Key={
+                    'name': field
+                },
+                UpdateExpression='SET val = :val1, started = :val2',
+                ExpressionAttributeValues={
+                    ':val1': True,
+                    ':val2': helpers.get_today_iso8601_datetime_pst()
+                }
+            )
+        except ResourceNotFoundException as e:
+            logger.error("update_item failed for field: "+ field + " on table: " + table_name)
+            raise e
 
 
     def end_running(self, flag_name):
         field = self.prefix + flag_name
-        self.table.update_item(
-            Key={
-                'name': field
-            },
-            UpdateExpression='SET val = :val1',
-            ExpressionAttributeValues={
-                ':val1': False
-            }
-        )
-        self.table.update_item(
-            Key={
-                'name': field
-            },
-            UpdateExpression='REMOVE started'
-        )
+        try:
+            self.table.update_item(        
+                Key={
+                    'name': field
+                },
+                UpdateExpression='SET val = :val1',
+                ExpressionAttributeValues={
+                    ':val1': False
+                }
+            )
+            self.table.update_item(
+                Key={
+                    'name': field
+                },
+                UpdateExpression='REMOVE started'
+            )
+        except ResourceNotFoundException as e:
+            logger.error("update_item failed for field: "+ field + " on table: " + table_name)
+            raise e
 
 
     def check_running(self, flag_name, debug):
@@ -113,10 +139,15 @@ class DynamoTable :
         running = False
         if (debug == False) : 
             field = self.prefix + flag_name
-            response = self.table.get_item(
-                Key={
-                    'name': field
-                })
+            try: 
+                response = self.table.get_item(
+                    Key={
+                        'name': field
+                    })
+            except ResourceNotFoundException as e:
+                logger.error("get_item failed for field: "+ field + " on table: " + table_name)
+                raise e
+                
             if 'Item' in response and len(response['Item']) > 0:
                 item = response['Item']
                 running = item['val']

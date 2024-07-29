@@ -164,13 +164,14 @@ def build_query(start_date, end_date):
     filterval = ""
 
     if batch_boundary_date is None or len(batch_boundary_date) == 0:
-        logger.info("No last batch boundary found, running to end of records")
+        logger.error("No last batch boundary date found, this is a fatal condition")
         lower_limit = 'NULL'
+        raise RuntimeError("No start date specified, and no previous run-end date found")
     else:
         lower_limit = str(batch_boundary_date)[:10]
 
     if next_batch_boundary_date is None or len(next_batch_boundary_date) == 0:
-        logger.error("No next batch boundary found, this is a fatal condition")
+        logger.info("No next batch boundary date found, running to end of records")
         upper_limit = 'NULL'
     else:
         upper_limit = str(next_batch_boundary_date)[:10]
