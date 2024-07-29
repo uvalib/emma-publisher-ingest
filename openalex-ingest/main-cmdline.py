@@ -43,11 +43,11 @@ def main():
         dynamo_url="http://localhost:8000"
         db = my_globals.botocore_session.resource('dynamodb', endpoint_url=dynamo_url)
         my_globals.dynamo_table = DynamoTable(db, config.DYNAMODB_LOADER_TABLE, config.STATUS_TABLE_PREFIX)
-        Logger.info("Using Dynamo db table : " + config.STATUS_TABLE_PREFIX + config.DYNAMODB_LOADER_TABLE + " for local database at " + dynamo_url)
+        logger.info("Using Dynamo db table : " + config.STATUS_TABLE_PREFIX + config.DYNAMODB_LOADER_TABLE + " for local database at " + dynamo_url)
     else :
         db = my_globals.botocore_session.resource('dynamodb', region_name="us-east-1")
         my_globals.dynamo_table = DynamoTable(db, config.DYNAMODB_LOADER_TABLE, config.STATUS_TABLE_PREFIX)
-        Logger.info("Using Dynamo db table : " + config.STATUS_TABLE_PREFIX + config.DYNAMODB_LOADER_TABLE + " for database in region " + region_name)
+        logger.info("Using Dynamo db table : " + config.STATUS_TABLE_PREFIX + config.DYNAMODB_LOADER_TABLE + " for database in region " + region_name)
 
     if args.opensearch_url:
         logger.info('sending records directly to opensearch at url '+args.opensearch_url)
