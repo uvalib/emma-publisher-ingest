@@ -1,8 +1,8 @@
 import os
 from shared.DocValidator import DocValidator
 
-#  Globals
-INGESTION_SCHEMA_FILE = 'shared/ingestion-record.schema.json' 
+INGESTION_SCHEMA_FILE = 'shared/ingestion-record.schema.json' if os.path.exists('shared/ingestion-record.schema.json') \
+        else os.path.dirname(os.path.realpath(os.path.abspath(__file__)))+'/ingestion-record.schema.json'
 
 doc_validator = DocValidator(schema_file_name=INGESTION_SCHEMA_FILE)
 opensearch_conn = None
