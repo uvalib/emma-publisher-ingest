@@ -1,0 +1,38 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+rope = "*"
+pytest = "*"
+requests-mock = "*"
+autopep8 = "*"
+moto = "*"
+
+[packages]
+requests = "==2.31.0"
+requests-oauthlib = "*"
+boto3 = "==1.34.36"
+pytz = "*"
+jsonpath-ng = "*"
+jsonschema = "==4.6.1"
+internetarchive = "==3.6.0"
+iso-639 = "*"
+pyisbn = "*"
+botocore = "==1.34.60"
+certifi = "==2024.2.2"
+jmespath = "==1.0.1"
+jsonpatch = "==1.33"
+jsonpointer = "==2.4"
+iso8601 = "==2.1.0"
+opensearch = "==0.8"
+opensearch-dsl = "==2.0.1"
+aws-requests-auth = "==0.4.3"
+paramiko = "*"
+sshtunnel = "*"
+cryptography = "==42.0.8"
+
+[requires]
+python_version = "3.9"
