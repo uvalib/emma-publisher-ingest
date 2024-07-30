@@ -9,6 +9,7 @@ from shared import helpers
 from shared import Dynamo
 from shared import globals as my_globals
 from openalex_shared import config, record_handling
+from shared.UpsertHandler import UpsertHandler
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -50,13 +51,13 @@ def run(start_date = None, end_date = None):
         else:
             start_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP)
 
-
-
     my_globals.dynamo_table.start_running(Dynamo.SCAN_RUNNING)
 
     logger.info('Start Running')
 
     records_sent = 0
+
+    my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
     
     try: 
         for i in range(1, config.OA_RETRIEVALS + 1):
@@ -103,6 +104,9 @@ def readfile(filename):
         my_open = gzip.open
     else:
         my_open = open    
+
+    my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
+    
     with my_open(filename, "r", encoding='utf-8') as file:
 
         try : 

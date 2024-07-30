@@ -11,7 +11,6 @@ from urllib3 import Retry
 from openalex_shared import config, metadata
 from shared import helpers
 from shared import Dynamo
-from shared.UpsertHandler import UpsertHandler
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -35,7 +34,6 @@ def get_transform_send(start_date = None, end_date = None):
             end_date = day_plus_one(start_date)    
         my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
 
-    my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
     num_records = 0
     try:
         oa_response = get_next_scrape_response(Dynamo.SCAN_NEXT_TOKEN, config.SEARCH_PARAMS, start_date, end_date)
@@ -82,7 +80,7 @@ def process_file(file):
     emma_records = []
     num_read = 0
     num_records = 0
-    my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
+
     try:
         line = file.readline()
         while (line) :
@@ -216,7 +214,7 @@ def get_next_scrape_response(next_token_name, params_to_copy, start_date, end_da
 
 def record_set_next_batch_boundary(start_date, end_date=None):
     """
-    Save the Internet Archive API date boundary for the batch after the current one
+    Save the OpenAlex API date boundary for the batch after the current one
     """
     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP, start_date)
     if (end_date is None  and  config.DATE_UPPER_BOUNDARY_FIELD == "NULL"):

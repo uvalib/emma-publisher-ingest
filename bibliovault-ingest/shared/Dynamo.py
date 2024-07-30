@@ -27,6 +27,7 @@ class DynamoTable :
     def __init__(self, dynamodb, table_name, prefix):
         self.dynamodb = dynamodb
         self.prefix = prefix
+        self.table_name = table_name
         self.table = dynamodb.Table(table_name)
 
     def initialize_db_flag(self, flag_name, init):
@@ -38,8 +39,9 @@ class DynamoTable :
                     'val': init
                 }
             )
-        except ResourceNotFoundException as e:
-            logger.error("put_item failed for field: "+ field + " on table: " + table_name)
+        except Exception as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                logger.error("put_item failed for field: "+ field + " on table: " + self.table_name)
             raise e
 
 
@@ -50,8 +52,9 @@ class DynamoTable :
                 Key={
                     'name': field
                 })
-        except ResourceNotFoundException as e:
-            logger.error("get_item failed for field: "+ field + " on table: " + table_name)
+        except Exception as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                logger.error("get_item failed for field: "+ field + " on table: " + self.table_name)
             raise e
 
         if 'Item' in response and len(response['Item']) > 0:
@@ -70,8 +73,9 @@ class DynamoTable :
                     'val': attr_value
                 }
             )
-        except ResourceNotFoundException as e:
-            logger.error("put_item failed for field: "+ field + " on table: " + table_name)
+        except Exception as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                logger.error("put_item failed for field: "+ field + " on table: " + self.table_name)
             raise e
 
 
@@ -83,8 +87,9 @@ class DynamoTable :
                     'name': field
                 }
             )
-        except ResourceNotFoundException as e:
-            logger.error("delete_item failed for field: "+ field + " on table: " + table_name)
+        except Exception as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                logger.error("delete_item failed for field: "+ field + " on table: " + self.table_name)
             raise e
     
 
@@ -102,8 +107,9 @@ class DynamoTable :
                     ':val2': helpers.get_today_iso8601_datetime_pst()
                 }
             )
-        except ResourceNotFoundException as e:
-            logger.error("update_item failed for field: "+ field + " on table: " + table_name)
+        except Exception as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                logger.error("delete_item failed for field: "+ field + " on table: " + self.table_name)
             raise e
 
 
@@ -125,8 +131,9 @@ class DynamoTable :
                 },
                 UpdateExpression='REMOVE started'
             )
-        except ResourceNotFoundException as e:
-            logger.error("update_item failed for field: "+ field + " on table: " + table_name)
+        except Exception as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                logger.error("update_item failed for field: "+ field + " on table: " + self.table_name)
             raise e
 
 
@@ -144,9 +151,11 @@ class DynamoTable :
                     Key={
                         'name': field
                     })
-            except ResourceNotFoundException as e:
-                logger.error("get_item failed for field: "+ field + " on table: " + table_name)
-                raise e
+            except Exception as e:
+                if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                    logger.error("delete_item failed for field: "+ field + " on table: " + self.table_name)
+                else:
+                    raise e
                 
             if 'Item' in response and len(response['Item']) > 0:
                 item = response['Item']

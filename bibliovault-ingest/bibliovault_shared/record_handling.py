@@ -42,15 +42,11 @@ def process_file_as_string(file_contents):
             if (len(emma_records) == config.EMMA_INGESTION_LIMIT):
                 if my_globals.upsert_handler != None : 
                     my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT)
-                # else : 
-                #     batch_to_ingestion(emma_records, config.EMMA_INGESTION_LIMIT, emma_ingestion_url)
                 num_records += len(emma_records)
                 emma_records = []
         if (len(emma_records) > 0) :
             if my_globals.upsert_handler != None : 
                 my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT)
-            # else : 
-            #     batch_to_ingestion(emma_records, config.EMMA_INGESTION_LIMIT, emma_ingestion_url)
             num_records += len(emma_records)
 
     except ConnectionError as e:
@@ -62,17 +58,4 @@ def process_file_as_string(file_contents):
         raise e
     return num_records
 
-
-# def batch_direct_to_opensearch(emma_records, num_per_batch):
-#
-#     index = globals.opensearch_conn.index
-#     handler = UpsertHandler(globals.opensearch_conn.index)
-#     for records in batch(emma_records, num_per_batch):
-#         logger.info("Sending smaller batch of  " + str(len(records)) + " records to opensearch index " + index + " directly")
-#         bulk_upsert = []
-#         for record in records :
-#             upsert_doc = handler.create_upsert_doc(record)
-#             bulk_upsert.append(upsert_doc)
-#             # doc_count = doc_count + 1
-#         my_globals.opensearch_conn.bulk(bulk_upsert)
 

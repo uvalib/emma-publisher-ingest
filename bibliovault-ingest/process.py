@@ -6,7 +6,7 @@ import boto3
 import logging
 import requests
 import gzip
-from shared import helpers, globals
+from shared import helpers
 from bibliovault_shared import record_handling
 
 logger = logging.getLogger()
@@ -82,7 +82,7 @@ def readfile(filename):
 
     try : 
         # Read the contents of the file            
-
+       
         cnt = record_handling.process_file_as_string(file_contents)
 
         records_sent += cnt
