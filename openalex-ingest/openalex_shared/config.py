@@ -1,7 +1,7 @@
 # import logging
 import os
 
-OA_REPOSITORY_NAME = os.environ.get('BV_REPOSITORY_NAME','biblioVault')
+OA_REPOSITORY_NAME = os.environ.get('OV_REPOSITORY_NAME','openAlex')
 OA_SCRAPE_URL = 'https://api.openalex.org/works'
 EMMA_INGESTION_LIMIT = int(os.environ.get('EMMA_INGESTION_LIMIT', 200))
 OA_RETRY = int(os.environ.get('OA_RETRY', 2))

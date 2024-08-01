@@ -153,9 +153,8 @@ class DynamoTable :
                     })
             except Exception as e:
                 if e.response['Error']['Code'] == 'ResourceNotFoundException':
-                    logger.error("delete_item failed for field: "+ field + " on table: " + self.table_name)
-                else:
-                    raise e
+                    logger.error("get_item failed for field: "+ field + " on table: " + self.table_name)
+                raise e
                 
             if 'Item' in response and len(response['Item']) > 0:
                 item = response['Item']
