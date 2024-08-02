@@ -71,6 +71,17 @@ def is_today(date_str):
     # Return True if the dates are equal, otherwise False
     return input_date == today
 
+# 2024-07-23T16:20:26Z
+def is_today_utc(date_time_str):
+    # Parse the date string into a datetime object
+    input_date = datetime.strptime(date_time_str, "%Y-%m-%dT%H:%M:%SZ").date()
+    
+    # Get today's date
+    today = datetime.today().date()
+    
+    # Return True if the dates are equal, otherwise False
+    return input_date == today
+
 def string_after(s, delimiter):
     """
     Returns the part of the string after the given delimiter.

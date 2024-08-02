@@ -32,12 +32,9 @@ def get_transform_send(ia_session, start_date = None, end_date = None):
     Transform the records to EMMA format
     Send them to EMMA
     """
-    if ( not helpers.is_today(start_date) and end_date is None):
-        if (config.DATE_BOUNDARY_FIELD == "NULL"):
-            today = datetime.today()
-            end_date = today.strftime("%Y-%m-%d")
-        else:
-            end_date = day_plus_one(start_date)
+    if ( not helpers.is_today_utc(start_date) and end_date is None):
+        today = datetime.today()
+        end_date = today.strftime("%Y-%m-%dZ%H:%M:%S")
               
         my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
 
