@@ -6,8 +6,9 @@ import logging
 import boto3
 import sys
 import argparse
+
 from shared import globals as my_globals
-from shared.opensearch_connection import OpenSearchConnection
+from shared.OpenSearchConnection import OpenSearchConnection
 from handler import *
 from process import *
 
