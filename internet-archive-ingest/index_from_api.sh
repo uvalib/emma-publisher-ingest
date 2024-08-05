@@ -7,7 +7,7 @@ else
     shift
 fi
 
-if [[ "$1" != "" ]] ; then
+if [[ "$1" != "" && "$1" != "newest" ]] ; then
     date=$1
 else
     date=""

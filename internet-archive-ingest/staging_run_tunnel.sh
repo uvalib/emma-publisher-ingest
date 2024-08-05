@@ -1,7 +1,7 @@
 if [[ -f secret_keys.sh ]] ; then
     . secret_keys.sh
 fi
-export EMMA_INGESTION_LIMIT=200
+export EMMA_INGESTION_LIMIT=500
 export OPENSEARCH_URL=localhost:9200
 export OPENSEARCH_INDEX=emma-federated-index-staging-1.0.1
 export BASTION_HOST=54.236.31.64
