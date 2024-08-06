@@ -1,7 +1,15 @@
 #!/bin/bash
 
+if [[ "$1" == "--debug" ]] ; then
+    debug=$1
+    shift
+else
+    debug=
+fi
+
 if [[ "$1" != "staging" && "$1" != "production" ]] ; then
     echo "Usage $0 staging|production "'[{date}|"newest"]'
+    exit
 else
     index=$1
     shift
@@ -32,8 +40,8 @@ else
 fi
 
 if [[ $date == "" ]]; then
-    pipenv run python -u main-cmdline.py 
+    pipenv run python -u main-cmdline.py $debug
 else
-    pipenv run python -u main-cmdline.py --start $date
+    pipenv run python -u main-cmdline.py --debug --start $date
 fi
 

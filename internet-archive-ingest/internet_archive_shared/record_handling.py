@@ -34,7 +34,7 @@ def get_transform_send(ia_session, start_date = None, end_date = None):
     """
     if ( not helpers.is_today_utc(start_date) and end_date is None):
         today = datetime.today()
-        end_date = today.strftime("%Y-%m-%dZ%H:%M:%S")
+        end_date = today.strftime("%Y-%m-%dT%H:%M:%SZ")
               
         my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
 
@@ -82,9 +82,12 @@ def on_success(oa_json, oa_records):
                 str(first_record[config.DATE_BOUNDARY_FIELD]))
     logger.info("Last record scanned is now " +
                 str(last_record['identifier']) + " last indexed " + str(last_record[config.DATE_BOUNDARY_FIELD]))
-    if helpers.exists(oa_json, 'meta') and helpers.exists(oa_json['meta'], 'next_cursor'):
-        my_globals.dynamo_table.set_db_value(Dynamo.SCAN_NEXT_TOKEN, oa_json['meta']['next_cursor'])
+    if helpers.exists(oa_json, 'cursor'):
+        cursor = oa_json['cursor']
+        logger.info("Got cursor : " + str(cursor));
+        my_globals.dynamo_table.set_db_value(Dynamo.SCAN_NEXT_TOKEN, cursor)
     else:
+        logger.info("No cursor found");
         my_globals.dynamo_table.delete_db_value(Dynamo.SCAN_NEXT_TOKEN)
 
     if helpers.exists(last_record, config.DATE_BOUNDARY_FIELD):
@@ -172,9 +175,9 @@ def get_next_scrape_response(next_token_name, params_to_copy, start_date, end_da
     return ia_response
 
 
-def record_set_next_batch_boundary(start_date, end_date):
+def record_set_batch_boundary(start_date, end_date):
     """
-    Save the Internet Archive API date boundary for the batch after the current one
+    Forcibly set the Internet Archive API date boundary for the current batch 
     """
     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP, start_date)
     if (end_date is None) :
@@ -182,8 +185,15 @@ def record_set_next_batch_boundary(start_date, end_date):
     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
 
 
+def record_set_next_batch_boundary():
+    """
+    Save the Internet Archive API date boundary for the batch after the current one
+    """
+    now_utc = helpers.get_now_iso8601_datetime_utc()
+    my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, now_utc)
 
-def record_update_batch_boundary(table):
+
+def record_update_batch_boundary():
     """
     When one batch is done, update the batch record boundary in the Dynamo DB database
     """
