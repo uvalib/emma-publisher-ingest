@@ -34,7 +34,7 @@ def run(ia_session, start_date = None, end_date = None):
     running = my_globals.dynamo_table.check_running(Dynamo.SCAN_RUNNING, my_globals.debug)
     if running:
         logger.info("Full scan already running")
-        return
+        return 0, False
 
     if (start_date is not None):
         logger.info("Forcing new batch from date: " + str(start_date))
