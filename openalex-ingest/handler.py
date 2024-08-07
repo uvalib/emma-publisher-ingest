@@ -9,6 +9,8 @@ import boto3
 from shared import globals as my_globals
 from shared.OpenSearchConnection import OpenSearchConnection
 from process import run
+from openalex_shared import config
+from internetarchive import get_session
 
 
 
@@ -50,17 +52,27 @@ def lambda_handler(event, context):
         
     ret = None
 
-    if event:
-        try : 
-            my_globals.opensearch_conn.connect()
-            val = run()
-            if val:
-                ret = val
+    try : 
+        my_globals.opensearch_conn.connect()
 
-        finally:
-            my_globals.opensearch_conn.close()
+        num, completed = run()
 
-        return ret
+        if ( num > 0 and completed):
+            # all is well
+            ret = { 'num_processed': str(num),
+                    'completed' : str(completed) }
+        else :
+            ret = { 'num_processed': str(num),
+                    'completed' : str(completed) }
+
+    except Exception  as e:
+        logger.exception()
+        ret = { 'exception': str(e) }
+
+    finally:
+        my_globals.opensearch_conn.close()
+
+    return ret
 
 #
 # end of file

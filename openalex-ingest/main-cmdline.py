@@ -98,15 +98,24 @@ def main():
 
     
         if args.input_filename :
-            err = readfile(args.input_filename)
+            num, completed = readfile(args.input_filename)
             
         else : 
-            err = run(start_date = args.start_date, end_date = args.end_date)
+            num, completed = run(start_date = args.start_date, end_date = args.end_date)
+
+        if ( num > 0 and completed):
+            # all is well
+            ret = None
+        else :
+            ret = { 'num_processed': str(num),
+                    'completed' : str(completed) }
     except Exception as e:
-        logger.error("error")
-        logger.exception(e)
+        logger.exception()
+        ret = { 'exception': str(e) }
+        
     finally:
         my_globals.opensearch_conn.close()
+        sys.exit(ret)
 
 if __name__ == "__main__":
     main()

@@ -56,6 +56,7 @@ def run(ia_session, start_date = None, end_date = None):
     logger.info('Start Running')
 
     records_sent = 0
+    completed = False
     
     my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
 
@@ -64,19 +65,24 @@ def run(ia_session, start_date = None, end_date = None):
             num_in_chunk = record_handling.get_transform_send(ia_session, start_date, end_date)
             records_sent = records_sent + num_in_chunk
             logger.info("Finished load " + str(i) + ", total loaded so far: " + str(records_sent))
-            if (my_globals.dynamo_table.get_db_value(Dynamo.SCAN_BATCH_COMPLETED) or my_globals.terminate_flag ):
+            
+            completed = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_BATCH_COMPLETED)
+            if (completed):
+                logger.info("Current batch completed")
+                break
+            if (my_globals.terminate_flag ):
                 logger.info("Terminate flag set, exiting cleanly")
                 break
+        ia_pulled = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_RUNNING_TOTAL_SOURCE)
+        emma_loaded = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_RUNNING_TOTAL_FEDERATED)
+        logger.info("Running total: " + str(ia_pulled) + " pulled from  "+ config.IA_REPOSITORY_NAME + " " + str(emma_loaded) + " loaded to federated index.")
+
     except Exception as e:
         logger.exception(e)
         raise e
     finally : 
-        ia_pulled = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_RUNNING_TOTAL_SOURCE)
-        emma_loaded = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_RUNNING_TOTAL_FEDERATED)
-        logger.info("Running total: " + str(ia_pulled) + " pulled from  "+ config.IA_REPOSITORY_NAME + " " + str(emma_loaded) + " loaded to federated index.")
         my_globals.dynamo_table.end_running(Dynamo.SCAN_RUNNING)
-        return records_sent
-
+        return records_sent, completed
 
 #
 # end of file

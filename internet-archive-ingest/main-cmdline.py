@@ -99,14 +99,22 @@ def main():
 
         ia_session = get_session(config=config.IA_SESSION_CONFIG)
    
-        err = run(ia_session, start_date = args.start_date, end_date = args.end_date)
-        
-    except Exception as e:
-        logger.error("error")
-        logger.exception(e)
-    finally:
+        num, completed = run(ia_session, start_date = args.start_date, end_date = args.end_date)
+        if ( num > 0 and completed):
+            # all is well
+            ret = None
+        else :
+            ret = { 'num_processed': str(num),
+                    'completed' : str(completed) }
+   
+    except Exception  as e:
+        logger.exception()
+        ret = { 'exception': str(e) }
+    
+    finally: 
         my_globals.opensearch_conn.close()
-
+        sys.exit(ret)
+        
 if __name__ == "__main__":
     main()
 
