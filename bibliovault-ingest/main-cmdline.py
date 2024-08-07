@@ -94,13 +94,17 @@ def main():
                 ]
             }
             # process
-            err = lambda_handler(payload, None)
+            ret = lambda_handler(payload, None)
             
         elif args.input_filename : 
-            err = readfile(args.input_filename)
-    
+            ret = readfile(args.input_filename)
+
     finally:
         my_globals.opensearch_conn.close()
+        if (ret == None) : 
+            sys.exit(0)
+        else:
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

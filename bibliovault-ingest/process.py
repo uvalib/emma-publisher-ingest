@@ -24,12 +24,23 @@ def process(bucket, key):
     buf = response['Body'].read()
     logger.info("downloaded, size is : " + str(len(buf)))
 
-    # do the processing
-    num = record_handling.process_file_as_string(buf)
+    try : 
+        # do the processing
+        num_read, num_processed = record_handling.process_file_as_string(buf)
 
-    # all is well
-    return None
-
+        if ( num_read > 0 and num_read == num_processed):
+            # all is well
+            ret = None
+        else :
+            ret = { 'num_read': str(num_read),
+                    'num_processed' : str(num_processed) }
+   
+    except Exception  as e:
+        logger.exception()
+        ret = { 'exception': str(e) }
+    
+    finally: 
+        return ret
 
 def get_presigned_url_from_url(url):
     # Initialize a session using Amazon S3
@@ -58,8 +69,6 @@ def readfile(filename):
     logger.info("Starting BiblioVault to EMMA transfer service PST " + helpers.get_today_iso8601_datetime_pst())
         
     logger.info('Start Running')
-
-    records_sent = 0
     
     # Read the contents of the file or url into file_contents          
     if (filename.startswith('http://') or filename.startswith('https://')):
@@ -83,19 +92,22 @@ def readfile(filename):
     try : 
         # Read the contents of the file            
        
-        cnt = record_handling.process_file_as_string(file_contents)
+        num_read, num_processed = record_handling.process_file_as_string(file_contents)
 
-        records_sent += cnt
-        logger.info("Finished load of file "+ filename + ", total loaded " + str(records_sent))
+        if ( num_read > 0 and num_read == num_processed):
+            # all is well
+            logger.info("Finished load of file "+ filename + ", total loaded " + str(num_processed))
+            ret = None
+        else :
+            ret = { 'num_read': str(num_read),
+                    'num_processed' : str(num_processed) }
+   
     except Exception  as e:
         logger.exception()
-        raise e
-    finally : 
-        # oa_pulled = get_db_value(table, dynamo.SCAN_RUNNING_TOTAL_SOURCE)
-        # emma_loaded = get_db_value(table, dynamo.SCAN_RUNNING_TOTAL_FEDERATED)
-        # logger.info("Running total: " + str(oa_pulled) + " pulled from  "+ config.BV_REPOSITORY_NAME + " " + str(emma_loaded) + " loaded to federated index.")
-        # end_running(table, dynamo.SCAN_RUNNING)
-        return records_sent
+        ret = { 'exception': str(e) }
+    
+    finally: 
+        return ret
 
 #
 # end of file

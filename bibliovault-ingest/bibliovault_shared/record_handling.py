@@ -56,6 +56,6 @@ def process_file_as_string(file_contents):
         logger.exception("Transform and send failed. This set will be retried.")
         print("Exception:", e)
         raise e
-    return num_records
+    return num_read, num_records
 
 
