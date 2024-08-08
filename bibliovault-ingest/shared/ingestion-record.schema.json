@@ -205,7 +205,8 @@
                                 "tactile",
                                 "kurzweil",
                                 "rtf",
-                                "html"
+                                "html",
+                                "other"
                             ]
                         },
                         "dc_type": {
