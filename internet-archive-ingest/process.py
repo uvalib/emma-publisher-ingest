@@ -38,7 +38,10 @@ def run(ia_session, start_date = None, end_date = None):
 
     if (start_date is not None):
         logger.info("Forcing new batch from date: " + str(start_date))
+        if (end_date is None) :
+            end_date = helpers.get_now_iso8601_datetime_utc()
         record_handling.record_set_batch_boundary(start_date, end_date)
+        
         my_globals.dynamo_table.delete_db_value(Dynamo.SCAN_NEXT_TOKEN)
         my_globals.dynamo_table.set_db_value(Dynamo.SCAN_BATCH_COMPLETED, False)
     else:
