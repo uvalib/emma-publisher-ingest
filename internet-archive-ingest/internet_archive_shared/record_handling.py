@@ -32,7 +32,7 @@ def get_transform_send(ia_session, start_date = None, end_date = None):
     Transform the records to EMMA format
     Send them to EMMA
     """
-    if ( not helpers.is_today_utc(start_date) and end_date is None):
+    if ( start_date is not None and not helpers.is_today_utc(start_date) and end_date is None):
         today = datetime.today()
         end_date = today.strftime("%Y-%m-%dT%H:%M:%SZ")
               
@@ -189,8 +189,10 @@ def record_set_next_batch_boundary():
     """
     Save the Internet Archive API date boundary for the batch after the current one
     """
-    now_utc = helpers.get_now_iso8601_datetime_utc()
-    my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, now_utc)
+    start_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP)
+    end_date = helpers.get_now_iso8601_datetime_utc()
+    my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
+    return start_date, end_date
 
 
 def record_update_batch_boundary():

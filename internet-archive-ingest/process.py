@@ -45,7 +45,7 @@ def run(ia_session, start_date = None, end_date = None):
         completed = my_globals.dynamo_table.check_batch_completed(Dynamo.SCAN_BATCH_COMPLETED)
         if completed:
             logger.info("Starting new batch")
-            record_handling.record_set_next_batch_boundary()
+            start_date, end_date = record_handling.record_set_next_batch_boundary()
             my_globals.dynamo_table.set_db_value(Dynamo.SCAN_BATCH_COMPLETED, False)
         else:
             start_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP)
