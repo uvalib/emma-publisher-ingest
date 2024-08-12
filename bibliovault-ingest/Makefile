@@ -18,7 +18,6 @@ deployable:
 	cp process.py $(DEPLOYDIR)
 	cp -R bibliovault_shared  $(DEPLOYDIR)
 	cp -R shared  $(DEPLOYDIR)
-	cp ingestion-record.schema.json $(DEPLOYDIR)
 	cd $(DEPLOYDIR); zip -r deployment.zip *
 
 clean:

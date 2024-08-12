@@ -16,10 +16,8 @@ deployable:
 	$(PIPBIN) install --target $(DEPLOYDIR) opensearch==0.8 opensearch-dsl==2.0.1 aws-requests-auth==0.4.3 paramiko sshtunnel
 	cp handler.py $(DEPLOYDIR)
 	cp process.py $(DEPLOYDIR)
-	cp -R bibliovault_shared  $(DEPLOYDIR)
-	cp -R ingestion_validator  $(DEPLOYDIR)
+	cp -R openalex_shared  $(DEPLOYDIR)
 	cp -R shared  $(DEPLOYDIR)
-	cp ingestion-record.schema.json $(DEPLOYDIR)
 	cd $(DEPLOYDIR); zip -r deployment.zip *
 
 clean:
