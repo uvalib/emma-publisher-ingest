@@ -57,7 +57,7 @@ do
     if [[ $epoch1 -ge $epoch2 ]]; then
         echo "process $datestr : $file"
         echo "------------------------------------------------------------------"
-        pipenv run python -u main-cmdline.py  --bucket bibliovault-transfer-staging  --key ${file}
+        pipenv run python -u main-cmdline.py  --bucket ${BUCKET}  --key ${file}
         echo "------------------------------------------------------------------"
         echo " "
     else
