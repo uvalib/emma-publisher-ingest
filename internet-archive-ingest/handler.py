@@ -75,7 +75,7 @@ def lambda_handler(event, context):
                     'completed' : str(completed) }
 
     except Exception  as e:
-        logger.exception()
+        logger.exception("exception : "+str(e))
         ret = { 'exception': str(e) }
 
     finally:
