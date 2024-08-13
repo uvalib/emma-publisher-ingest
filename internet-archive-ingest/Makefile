@@ -17,7 +17,7 @@ deployable:
 	cp handler.py $(DEPLOYDIR)
 	cp process.py $(DEPLOYDIR)
 	cp -R internet_archive_shared  $(DEPLOYDIR)
-	cp -R shared  $(DEPLOYDIR)
+	cp -RL shared  $(DEPLOYDIR)
 	cd $(DEPLOYDIR); zip -r deployment.zip * -x "**/__pycache__/*"
 
 clean:
