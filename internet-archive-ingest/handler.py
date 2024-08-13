@@ -7,6 +7,7 @@ import sys
 import logging
 import boto3
 from shared import globals as my_globals
+from shared.Dynamo import DynamoTable
 from shared.OpenSearchConnection import OpenSearchConnection
 from process import run
 from internet_archive_shared import config
@@ -50,6 +51,12 @@ def lambda_handler(event, context):
         logger.info('sending records directly to opensearch at url '+ my_globals.opensearch_conn.url)
         logger.info('  sending records to index '+ my_globals.opensearch_conn.index)
         
+    region_name="us-east-1"
+    db = my_globals.botocore_session.resource('dynamodb', region_name=region_name)
+    my_globals.dynamo_table = DynamoTable(db, config.DYNAMODB_LOADER_TABLE, config.STATUS_TABLE_PREFIX)
+    logger.info("Using Dynamo db table : " + config.STATUS_TABLE_PREFIX + config.DYNAMODB_LOADER_TABLE + " for database in region " + region_name)
+
+    
     ret = None
 
     try : 
