@@ -29,6 +29,8 @@ phases:
       - make linux
       - cd ${CODEBUILD_SRC_DIR}/bibliovault-validate
       - make linux
+      - cd ${CODEBUILD_SRC_DIR}/internet-archive-ingest
+      - make linux
       #
       # copy to the results bucket
       #
@@ -38,6 +40,9 @@ phases:
       #
       # bibliovault-validate function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/bibliovault-validate/bin/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/bibliovault-validate/deployment.zip --quiet
+      #
+      # internet-archive-ingest function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/internet-archive-ingest/package/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/internet-archive-ingest/deployment.zip --quiet
       #
       # create the git commit tag file
       #

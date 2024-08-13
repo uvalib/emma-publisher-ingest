@@ -25,6 +25,9 @@ phases:
       #
       # bibliovault-validate function
       - aws lambda update-function-code --function-name uva-bibliovault-validate-staging --s3-bucket ${deploy_bucket} --s3-key latest/bibliovault-validate/deployment.zip
+      #
+      # internet-archive-ingest function
+      - aws lambda update-function-code --function-name uva-internet-archive-ingest-staging --s3-bucket ${deploy_bucket} --s3-key latest/internet-archive-ingest/deployment.zip
 
 #  post_build:
 #    commands:
