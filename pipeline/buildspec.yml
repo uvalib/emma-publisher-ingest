@@ -6,7 +6,7 @@ version: 0.2
 
 env:
   variables:
-    deploy_bucket: emma-bibliovault-ingest-deploy
+    deploy_bucket: emma-lambda-ingest-deploy
 
 phases:
   install:
