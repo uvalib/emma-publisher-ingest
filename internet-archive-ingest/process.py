@@ -65,6 +65,13 @@ def run(ia_session, start_date = None, end_date = None):
     my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
     total_time = 0.0
     iterations = 0
+    if (my_globals.lambda_context != None) :
+        # Get remaining time in milliseconds
+        remaining_time = my_globals.lambda_context.get_remaining_time_in_millis()
+
+        # Convert to seconds
+        remaining_seconds = remaining_time / 1000.0
+        logger.info(f"Time remaining in lambda (in seconds): {remaining_seconds}")
 
     try: 
         for i in range(1, config.IA_RETRIEVALS + 1):
