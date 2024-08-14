@@ -44,6 +44,7 @@ def get_transform_send(ia_session, start_date = None, end_date = None):
         ia_response = get_next_scrape_response(Dynamo.SCAN_NEXT_TOKEN, config.SEARCH_PARAMS, start_date, end_date)
         if (ia_response.status_code == 200):
             logger.info("response received status code = 200")
+            logger.info("  elapsed time for response = "+ str(ia_response.elapsed.total_seconds()))
             ia_json = ia_response.json()
             ia_records = null_safe_get_items(ia_json)
             logger.info("received json translated to objects")
@@ -52,7 +53,7 @@ def get_transform_send(ia_session, start_date = None, end_date = None):
             num_records = len(emma_records)
             logger.info(str(num_ia_records) + " ia records transformed to "+ str(num_records) + " emma records")
             if len(emma_records) > 0:
-                logger.info("Sending " + str(num_records) + " records to opensearch directly in batches.")
+                logger.info("Sending " + str(num_records) + " records to opensearch directly in batches of "+str(config.EMMA_INGESTION_LIMIT))
                 if my_globals.upsert_handler != None : 
                     my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT)
                 on_success(ia_json, ia_records)

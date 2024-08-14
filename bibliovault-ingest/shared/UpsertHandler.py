@@ -33,7 +33,7 @@ class UpsertHandler:
     def submit_in_batch(self, emma_records, num_per_batch):
     
         for records in batch(emma_records, num_per_batch):
-            logger.info("Sending smaller batch of  " + str(len(records)) + " records to opensearch index " + self.opensearch_conn.index + " directly")
+            logger.info("Sending batch of  " + str(len(records)) + " records to opensearch index " + self.opensearch_conn.index + " directly")
             bulk_upsert = []
             for record in records :
                 upsert_doc = self.create_upsert_doc(record)

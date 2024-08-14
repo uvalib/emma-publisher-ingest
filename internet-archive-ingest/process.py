@@ -4,6 +4,7 @@
 
 import logging
 import signal
+import time
 from shared import helpers
 from shared import Dynamo
 from shared import globals as my_globals
@@ -62,13 +63,31 @@ def run(ia_session, start_date = None, end_date = None):
     completed = False
     
     my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
+    total_time = 0.0
+    iterations = 0
 
     try: 
         for i in range(1, config.IA_RETRIEVALS + 1):
+            batchstart = time.time()
             num_in_chunk = record_handling.get_transform_send(ia_session, start_date, end_date)
             records_sent = records_sent + num_in_chunk
-            logger.info("Finished load " + str(i) + ", total loaded so far: " + str(records_sent))
-            
+            batchend = time.time()
+            elapsed_time = batchend - batchstart
+            total_time += elapsed_time
+            iterations += 1
+            logger.info("Finished batch " + str(i) + ", total loaded so far: " + str(records_sent))
+            logger.info(f"  Elapsed for batch time: {elapsed_time:.4f} seconds")
+            if (my_globals.lambda_context != None) :
+                # Get remaining time in milliseconds
+                remaining_time = my_globals.lambda_context.get_remaining_time_in_millis()
+    
+                # Convert to seconds
+                remaining_seconds = remaining_time / 1000.0
+                logger.info(f"Time remaining in lambda (in seconds): {remaining_seconds}")
+                average_loop_time = (total_time / iterations)
+                if (remaining_seconds < 2 * average_loop_time):
+                    my_globals.terminate_flag = True
+                    logger.info("Running out of time, setting terminate flag")
             completed = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_BATCH_COMPLETED)
             if (completed):
                 logger.info("Current batch completed")
