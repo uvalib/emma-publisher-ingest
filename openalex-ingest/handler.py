@@ -36,7 +36,7 @@ def lambda_handler(event, context):
 
     # return status
     my_globals.lambda_context = context
-    config.OA_RETRIEVALS = int(os.environ.get('OA_RETRIEVALS', 100))
+    config.OA_RETRIEVALS = int(os.environ.get('OA_RETRIEVALS', 200))
     
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logger = logging.getLogger()
