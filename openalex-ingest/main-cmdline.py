@@ -29,8 +29,8 @@ def main():
     parser.add_argument('--tunneluser', dest='tunneluser', type=str, help='bastion host username')
     parser.add_argument('--remote', dest='remoteurl', type=str, help='remote machine url')
     parser.add_argument('--sshkey', dest='sshkey', type=str, help='filename containing .pem file for bastion')
-    parser.add_argument('-s', '--startdate', dest='start_date', help='start date for use with API')
-    parser.add_argument('-e', '--enddate', dest='end_date', help='end date for use with API')
+    parser.add_argument('-s', '--start', dest='start_date', help='start date for use with API')
+    parser.add_argument('-e', '--end', dest='end_date', help='end date for use with API')
 
     args = parser.parse_args()
 
