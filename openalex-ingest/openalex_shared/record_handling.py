@@ -11,6 +11,7 @@ from urllib3 import Retry
 from openalex_shared import config, metadata
 from shared import helpers
 from shared import Dynamo
+from shared.helpers import get_now_iso8601_datetime_utc
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,12 +27,10 @@ def get_transform_send(start_date = None, end_date = None):
     Send them to EMMA
     """
     
-    if ( not helpers.is_today(start_date) and end_date is None):
-        if (config.DATE_UPPER_BOUNDARY_FIELD == "NULL"):
-            today = datetime.today()
-            end_date = today.strftime("%Y-%m-%d")
-        else:
-            end_date = day_plus_one(start_date)    
+    if ( start_date is not None  and end_date is None):
+        today = datetime.today()
+        end_date = today.strftime("%Y-%m-%dT%H:%M:%SZ")
+              
         my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
 
     num_records = 0
@@ -166,18 +165,19 @@ def build_query(start_date, end_date):
         lower_limit = 'NULL'
         raise RuntimeError("No start date specified, and no previous run-end date found")
     else:
-        lower_limit = str(batch_boundary_date)[:10]
+        lower_limit = str(batch_boundary_date)
+        lower_limit_date = str(batch_boundary_date)[:10]
 
     if next_batch_boundary_date is None or len(next_batch_boundary_date) == 0:
         logger.info("No next batch boundary date found, running to end of records")
         upper_limit = 'NULL'
     else:
-        upper_limit = str(next_batch_boundary_date)[:10]
+        upper_limit = str(next_batch_boundary_date)
 
     if lower_limit != 'NULL' and upper_limit != 'NULL' and config.DATE_UPPER_BOUNDARY_FIELD != 'NULL' :
-        filterval =  config.DATE_LOWER_BOUNDARY_FIELD + ":" + lower_limit + "," +config.DATE_UPPER_BOUNDARY_FIELD + ":" +  upper_limit 
+        filterval =  config.DATE_LOWER_BOUNDARY_FIELD + ":" + lower_limit + "," +config.DATE_UPPER_BOUNDARY_FIELD + ":" +  upper_limit + "," + config.DATE_LOWER_BOUNDARY_DATE_FIELD + ":" + lower_limit_date
     elif lower_limit != 'NULL' and ( upper_limit == 'NULL' or config.DATE_UPPER_BOUNDARY_FIELD == 'NULL' ) :
-        filterval =  config.DATE_LOWER_BOUNDARY_FIELD + ":" + lower_limit 
+        filterval =  config.DATE_LOWER_BOUNDARY_DATE_FIELD + ":" + lower_limit_date
     return query, filterval
 
 
@@ -212,17 +212,34 @@ def get_next_scrape_response(next_token_name, params_to_copy, start_date, end_da
 
     return oa_response
 
-def record_set_next_batch_boundary(start_date, end_date=None):
+# def record_set_next_batch_boundary(start_date, end_date=None):
+#     """
+#     Save the OpenAlex API date boundary for the batch after the current one
+#     """
+#     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP, start_date)
+#     if (end_date is None  and  config.DATE_UPPER_BOUNDARY_FIELD == "NULL"):
+#         today = datetime.today()
+#         end_date = today.strftime("%Y-%m-%d")
+#     else:
+#         end_date = day_plus_one(start_date)    
+#     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
+
+def record_set_batch_boundary(start_date, end_date):
     """
-    Save the OpenAlex API date boundary for the batch after the current one
+    Forcibly set the Internet Archive API date boundary for the current batch 
     """
     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP, start_date)
-    if (end_date is None  and  config.DATE_UPPER_BOUNDARY_FIELD == "NULL"):
-        today = datetime.today()
-        end_date = today.strftime("%Y-%m-%d")
-    else:
-        end_date = day_plus_one(start_date)    
     my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
+
+
+def record_set_next_batch_boundary():
+    """
+    Save the Internet Archive API date boundary for the batch after the current one
+    """
+    start_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP)
+    end_date = helpers.get_now_iso8601_datetime_utc()
+    my_globals.dynamo_table.set_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP, end_date)
+    return start_date, end_date
 
 
 def record_update_batch_boundary():

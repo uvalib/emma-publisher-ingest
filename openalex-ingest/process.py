@@ -5,6 +5,7 @@
 import logging
 import signal
 import gzip
+import time
 from shared import helpers
 from shared import Dynamo
 from shared import globals as my_globals
@@ -39,31 +40,61 @@ def run(start_date = None, end_date = None):
     
     if (start_date is not None):
         logger.info("Forcing new batch from date: " + str(start_date))
-        record_handling.record_set_next_batch_boundary(start_date, end_date)
+        if (end_date is None) :
+            end_date = helpers.get_now_iso8601_datetime_utc()
+        record_handling.record_set_batch_boundary(start_date, end_date)
         my_globals.dynamo_table.delete_db_value(Dynamo.SCAN_NEXT_TOKEN)
         my_globals.dynamo_table.set_db_value(Dynamo.SCAN_BATCH_COMPLETED, False)
     else:
         completed = my_globals.dynamo_table.check_batch_completed(Dynamo.SCAN_BATCH_COMPLETED)
         if completed:
             logger.info("Starting new batch")
-            start_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP)
+            start_date, end_date = record_handling.record_set_next_batch_boundary()
             my_globals.dynamo_table.set_db_value(Dynamo.SCAN_BATCH_COMPLETED, False)
         else:
             start_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_TAIL_TIMESTAMP)
+            end_date = my_globals.dynamo_table.get_db_value(Dynamo.BATCH_BOUNDARY_HEAD_TIMESTAMP)
 
     my_globals.dynamo_table.start_running(Dynamo.SCAN_RUNNING)
 
     logger.info('Start Running')
 
     records_sent = 0
-
-    my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
+    completed = False
     
+    my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
+    total_time = 0.0
+    iterations = 0
+    if (my_globals.lambda_context != None) :
+        # Get remaining time in milliseconds
+        remaining_time = my_globals.lambda_context.get_remaining_time_in_millis()
+
+        # Convert to seconds
+        remaining_seconds = remaining_time / 1000.0
+        logger.info(f"Time remaining in lambda (in seconds): {remaining_seconds}")
+
     try: 
         for i in range(1, config.OA_RETRIEVALS + 1):
+            batchstart = time.time()
             num_in_chunk = record_handling.get_transform_send(start_date, end_date)
             records_sent = records_sent + num_in_chunk
-            logger.info("Finished load " + str(i) + ", total loaded so far: " + str(records_sent))
+            batchend = time.time()
+            elapsed_time = batchend - batchstart
+            total_time += elapsed_time
+            iterations += 1
+            logger.info("Finished batch " + str(i) + ", total loaded so far: " + str(records_sent))
+            logger.info(f"  Elapsed for batch time: {elapsed_time:.4f} seconds")
+            if (my_globals.lambda_context != None) :
+                # Get remaining time in milliseconds
+                remaining_time = my_globals.lambda_context.get_remaining_time_in_millis()
+    
+                # Convert to seconds
+                remaining_seconds = remaining_time / 1000.0
+                logger.info(f"Time remaining in lambda (in seconds): {remaining_seconds}")
+                average_loop_time = (total_time / iterations)
+                if (remaining_seconds < 2 * average_loop_time):
+                    my_globals.terminate_flag = True
+                    logger.info("Running out of time, setting terminate flag")
             completed = my_globals.dynamo_table.get_db_value(Dynamo.SCAN_BATCH_COMPLETED)
             if (completed):
                 logger.info("Current batch completed")

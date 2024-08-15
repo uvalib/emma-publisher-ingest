@@ -32,11 +32,12 @@ my_globals.botocore_session = boto3.Session()
 my_globals.opensearch_conn = OpenSearchConnection(lambda_opensearch_url, lambda_index, tunnelhost = lambda_tunnelhost, tunneluser = lambda_tunneluser, 
                                                       remoteurl = lambda_remoteurl, sshkey = lambda_sshkey)
 
-
-
 def lambda_handler(event, context):
 
     # return status
+    my_globals.lambda_context = context
+    config.OA_RETRIEVALS = int(os.environ.get('OA_RETRIEVALS', 100))
+    
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
