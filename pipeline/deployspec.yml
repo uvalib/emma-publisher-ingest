@@ -28,6 +28,9 @@ phases:
       #
       # internet-archive-ingest function
       - aws lambda update-function-code --function-name uva-internet-archive-ingest-staging --s3-bucket ${deploy_bucket} --s3-key latest/internet-archive-ingest/deployment.zip
+      #
+      # openalex-ingest function
+      - aws lambda update-function-code --function-name uva-openalex-ingest-staging --s3-bucket ${deploy_bucket} --s3-key latest/openalex-ingest/deployment.zip
 
 #  post_build:
 #    commands:

@@ -31,6 +31,8 @@ phases:
       - make linux
       - cd ${CODEBUILD_SRC_DIR}/internet-archive-ingest
       - make linux
+      - cd ${CODEBUILD_SRC_DIR}/openalex-ingest
+      - make linux
       #
       # copy to the results bucket
       #
@@ -43,6 +45,9 @@ phases:
       #
       # internet-archive-ingest function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/internet-archive-ingest/package/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/internet-archive-ingest/deployment.zip --quiet
+      #
+      # openalex-ingest function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/openalex-ingest/package/deployment.zip s3://${deploy_bucket}/${BUILD_VERSION}/openalex-ingest/deployment.zip --quiet
       #
       # create the git commit tag file
       #
