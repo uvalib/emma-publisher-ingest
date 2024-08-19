@@ -7,7 +7,7 @@ linux: deployable
 
 all: deployable
 
-deployable:
+deployable: init
 	rm -rf $(DEPLOYDIR)
 	mkdir $(DEPLOYDIR)
 	$(PIPBIN) install --target $(DEPLOYDIR) cryptography==42.0.8 awscli==1.33.0 boto3==1.34.36 requests==2.31.0 requests-oauthlib pytz \
@@ -19,6 +19,10 @@ deployable:
 	cp -R internet_archive_shared  $(DEPLOYDIR)
 	cp -RL shared  $(DEPLOYDIR)
 	cd $(DEPLOYDIR); zip -r deployment.zip * -x "**/__pycache__/*"
+
+init:
+        mkdir -P shared
+        ln -s ../lambda-common/python-ingest-shared/* ./shared
 
 clean:
 	rm -rf $(DEPLOYDIR)

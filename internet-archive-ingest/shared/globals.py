@@ -1,1 +1,0 @@
-../../bibliovault-ingest/shared/globals.py

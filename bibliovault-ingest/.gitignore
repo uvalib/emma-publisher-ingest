@@ -2,3 +2,4 @@ __pycache__
 *.pem
 secret_keys.sh
 index_date*
+shared
