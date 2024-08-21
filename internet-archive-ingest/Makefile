@@ -21,8 +21,9 @@ deployable: init
 	cd $(DEPLOYDIR); zip -r deployment.zip * -x "**/__pycache__/*"
 
 init:
-        mkdir -P shared
-        ln -s ../lambda-common/python-ingest-shared/* ./shared
+	mkdir -p shared
+	cd shared
+	ln -s ../../lambda-common/python-ingest-shared/* .
 
 clean:
 	rm -rf $(DEPLOYDIR)
