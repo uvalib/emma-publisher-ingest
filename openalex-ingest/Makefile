@@ -22,8 +22,8 @@ deployable: init
 
 init: 
 	mkdir -p shared
-	cd shared
-	ln -s ../../lambda-common/python-ingest-shared/* .
+	rm -f shared/*
+	cd shared && find ../../lambda-common/python-ingest-shared/ -type f | xargs -I {} ln -s {} .
 
 clean:
 	rm -rf $(DEPLOYDIR)
