@@ -56,7 +56,7 @@ def lambda_handler(event, context):
     region_name="us-east-1"
     db = my_globals.botocore_session.resource('dynamodb', region_name=region_name)
     my_globals.dynamo_table = DynamoTable(db, config.DYNAMODB_LOADER_TABLE, config.STATUS_TABLE_PREFIX)
-    logger.info("Using Dynamo db table : " + config.STATUS_TABLE_PREFIX + config.DYNAMODB_LOADER_TABLE + " for database in region " + region_name)
+    logger.info("Using Dynamo db table : " + config.DYNAMODB_LOADER_TABLE + " for database in region " + region_name)
 
     
     ret = None
