@@ -60,7 +60,7 @@ phases:
       #
       # update the latest tag
       #
-      - aws --region=$AWS_REGION ssm put-parameter --name /lambdas/${deploy_bucket}/latest --value build-${BUILD_VERSION} --type String --overwrite
+      - aws --region=$AWS_REGION ssm put-parameter --name /lambdas/${deploy_bucket}/latest --value ${BUILD_VERSION} --type String --overwrite
 
 #  post_build:
 #    commands:
