@@ -18,8 +18,8 @@ deployable: init
 	cp handler.py $(DEPLOYDIR)
 	cp process.py $(DEPLOYDIR)
 	cp -R bibliovault_shared  $(DEPLOYDIR)
-	cp -R shared  $(DEPLOYDIR)
-	cd $(DEPLOYDIR); zip -r deployment.zip *
+	cp -RL shared  $(DEPLOYDIR)
+	cd $(DEPLOYDIR); zip -r deployment.zip * -x "**/__pycache__/*"
 
 init:
 	mkdir -p shared
