@@ -140,12 +140,17 @@ def readfile(filename):
     # else:
     if filename.endswith('.gz'):
         my_open = gzip.open
+        my_mode = "rt"
+        my_encoding = None
     else:
-        my_open = open    
+        my_open = open
+        my_mode = "rt"
+        my_encoding = 'utf-8'
+    
 
     my_globals.upsert_handler = UpsertHandler(my_globals.opensearch_conn)
     
-    with my_open(filename, "r", encoding='utf-8') as file:
+    with my_open(filename, my_mode, encoding=my_encoding) as file:
 
         try : 
             # Read the contents of the file            

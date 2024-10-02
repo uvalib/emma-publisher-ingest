@@ -167,12 +167,13 @@ def get_authors(authorships):
     return authors
 
 def abstractulate(abstract_inverted_index):
-    words = []
+    words = {}
     for key in abstract_inverted_index.keys() :
         positions = abstract_inverted_index[key]
         for position in positions :
-            words.insert(position, key)
-    abstract = stringify(words)
+            words[position]= key
+    abstract = ' '.join(words[key] for key in sorted(words.keys()))
+    # abstract = stringify(words)
     return abstract
 
 def get_related_identifiers(record):
