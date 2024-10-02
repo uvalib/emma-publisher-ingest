@@ -90,15 +90,15 @@ def process_file(file):
                 oa_record = json.loads(line)
                 emma_record = metadata.transform_records([oa_record], my_globals.doc_validator)
                 emma_records.extend(emma_record)
-                if (len(emma_records) == config.EMMA_INGESTION_LIMIT):
+                if (len(emma_records) == config.EMMA_INGESTION_LIMIT_FROM_FILE):
                     if my_globals.upsert_handler != None : 
-                        my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT)
+                        my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT_FROM_FILE)
                     num_records += len(emma_records)
                     emma_records = []
             line = file.readline()
         if (len(emma_records) > 0) :
             if my_globals.upsert_handler != None : 
-                my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT)
+                my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT_FROM_FILE)
             num_records += len(emma_records)
 
             my_globals.dynamo_table.update_counts(num_read, num_records)

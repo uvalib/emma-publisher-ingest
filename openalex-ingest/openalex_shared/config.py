@@ -4,6 +4,7 @@ import os
 OA_REPOSITORY_NAME = os.environ.get('OV_REPOSITORY_NAME','openAlex')
 OA_SCRAPE_URL = 'https://api.openalex.org/works'
 EMMA_INGESTION_LIMIT = int(os.environ.get('EMMA_INGESTION_LIMIT', 200))
+EMMA_INGESTION_LIMIT_FROM_FILE = int(os.environ.get('EMMA_INGESTION_LIMIT_FROM_FILE', 500))
 OA_RETRY = int(os.environ.get('OA_RETRY', 2))
 OA_RETRIEVALS = int(os.environ.get('OA_RETRIEVALS', 200))
 OA_TIMEOUT = int(os.environ.get('OA_TIMEOUT', 120))
