@@ -98,7 +98,7 @@ def process_file(file):
             line = file.readline()
         if (len(emma_records) > 0) :
             if my_globals.upsert_handler != None : 
-                my_globals.upsert_handler.send_records(emma_records, config.EMMA_INGESTION_LIMIT)
+                my_globals.upsert_handler.submit_in_batch(emma_records, config.EMMA_INGESTION_LIMIT)
             num_records += len(emma_records)
 
             my_globals.dynamo_table.update_counts(num_read, num_records)
