@@ -59,14 +59,12 @@ VERIFY_FIELDS = ['identifier']
 SEARCH_PARAMS = {'count': IA_PAGE_SIZE,
                  # Causes IA error: "userid xxxxxxx is not authorized to access .", errorType: "unknown"
                  # 'scope': 'all'
-                 'fields' : ','.join(SEARCH_FIELDS),
-                 'personalize': IA_PERSONALIZE}
+                 'fields' : ','.join(SEARCH_FIELDS)}
 
 VERIFY_SEARCH_PARAMS = {'count': IA_PAGE_SIZE,
                  # Causes IA error: "userid xxxxxxx is not authorized to access .", errorType: "unknown"
                  # 'scope': 'all'
-                 'fields' : ','.join(VERIFY_FIELDS),
-                 'personalize': IA_PERSONALIZE}
+                 'fields' : ','.join(VERIFY_FIELDS)}
 
 HEADERS = {
     'Authorization': 'LOW '+IA_ACCESS_KEY+':'+IA_SECRET_KEY
