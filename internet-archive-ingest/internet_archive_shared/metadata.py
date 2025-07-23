@@ -69,13 +69,16 @@ def transform_record(incoming_record, session, transformed_records, errors, doc_
         incoming_formats = incoming_record['format']
         for incoming_format in incoming_formats:
             if incoming_format in IA_FORMAT_TRANSLATION:
-                if (incoming_format == "Text PDF") :
+                if (incoming_format == "Text PDF"):
                     # num_get_item = num_get_item + 1
                     # logger.info("Calling get_item")
                     # ia_item = session.get_item(str(incoming_record['identifier']))
                     # format_file_map = get_format_file_map(ia_item.files)
                     # emma_record = get_title_field_record(incoming_record, ia_item)
                     # emma_record['emma_retrievalLink'] = get_download_file_link(incoming_format, incoming_record, format_file_map)
+                    emma_record = get_title_field_record(incoming_record, ia_item)
+                    emma_record['emma_retrievalLink'] = get_download_file_link(incoming_format, incoming_record, None)
+                elif (incoming_format == "EPUB"):
                     emma_record = get_title_field_record(incoming_record, ia_item)
                     emma_record['emma_retrievalLink'] = get_download_file_link(incoming_format, incoming_record, None)
                 elif incoming_format in IA_OTHER_FORMATS:

@@ -127,7 +127,8 @@ def build_query(start_date, end_date) :
     collection_clause = " OR ".join(collection_list)
     formats_list = list(filter(None, config.IA_FORMATS))
 
-    query = "_exists_:" + config.DATE_BOUNDARY_FIELD + " AND collection:(" + collection_clause + ") AND mediatype:(texts)"
+    #query = "_exists_:" + config.DATE_BOUNDARY_FIELD + " AND collection:(" + collection_clause + ") AND mediatype:(texts)"
+    query = "_exists_:" + config.DATE_BOUNDARY_FIELD + " AND collection:(" + collection_clause + ") "
 
     if formats_list is not None and len(formats_list) > 0:
         formats = " AND ".join(formats_list)
