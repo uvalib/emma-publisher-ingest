@@ -9,5 +9,5 @@ export BASTION_USERNAME=ec2-user
 export BASTION_REMOTE_HOST=vpc-emma-nonlive-ip5v3sq3r2im6pvyvjcadlgzvm.us-east-1.es.amazonaws.com
 export BASTION_SSHKEY=bastion_staging.pem
 export EMMA_STATUS_TABLE_NAME=emma_bookshare_loader_staging
-
+export IA_PAGE_SIZE=500
 
